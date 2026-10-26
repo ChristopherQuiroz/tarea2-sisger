@@ -1,0 +1,523 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-ucb-transporte-us-8846535"
+		},
+		"sa_transporte_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'sa_transporte'"
+		},
+		"sql_dw_transporte_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'sql_dw_transporte'"
+		},
+		"sql_rpe_transporte_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'sql_rpe_transporte'"
+		},
+		"sa_transporte_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saucbtransporte8846535.dfs.core.windows.net/"
+		},
+		"sql_dw_transporte_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-server-transporte-8846535.database.windows.net"
+		},
+		"sql_dw_transporte_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "dw_transporte"
+		},
+		"sql_dw_transporte_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": " chrisquiroz"
+		},
+		"sql_rpe_transporte_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-server-transporte-8846535.database.windows.net"
+		},
+		"sql_rpe_transporte_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "erp_transporte_db"
+		},
+		"sql_rpe_transporte_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "chrisquiroz"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_demanda_paradas_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "demanda_paradas.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "fec_servicio",
+						"type": "String"
+					},
+					{
+						"name": "cod_ruta",
+						"type": "String"
+					},
+					{
+						"name": "nro_parada",
+						"type": "String"
+					},
+					{
+						"name": "franja",
+						"type": "String"
+					},
+					{
+						"name": "abordajes_manuales",
+						"type": "String"
+					},
+					{
+						"name": "descensos_manuales",
+						"type": "String"
+					},
+					{
+						"name": "demanda_no_atendida",
+						"type": "String"
+					},
+					{
+						"name": "medicion",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_incidentes_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "incidentes.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "id_incidente",
+						"type": "String"
+					},
+					{
+						"name": "tipo",
+						"type": "String"
+					},
+					{
+						"name": "severidad",
+						"type": "String"
+					},
+					{
+						"name": "fecha_inicio",
+						"type": "String"
+					},
+					{
+						"name": "hora_inicio",
+						"type": "String"
+					},
+					{
+						"name": "fecha_fin",
+						"type": "String"
+					},
+					{
+						"name": "hora_fin",
+						"type": "String"
+					},
+					{
+						"name": "fecha_registro",
+						"type": "String"
+					},
+					{
+						"name": "rutas_afectadas",
+						"type": "String"
+					},
+					{
+						"name": "vehiculo_afectado",
+						"type": "String"
+					},
+					{
+						"name": "descripcion",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_paradas_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "paradas.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nro_parada",
+						"type": "String"
+					},
+					{
+						"name": "nombre_parada",
+						"type": "String"
+					},
+					{
+						"name": "zona",
+						"type": "String"
+					},
+					{
+						"name": "latitud",
+						"type": "String"
+					},
+					{
+						"name": "longitud",
+						"type": "String"
+					},
+					{
+						"name": "fecha_desde",
+						"type": "String"
+					},
+					{
+						"name": "fecha_hasta",
+						"type": "String"
+					},
+					{
+						"name": "estado",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_rutas_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "rutas.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "cod_ruta",
+						"type": "String"
+					},
+					{
+						"name": "nombre_ruta",
+						"type": "String"
+					},
+					{
+						"name": "origen",
+						"type": "String"
+					},
+					{
+						"name": "destino",
+						"type": "String"
+					},
+					{
+						"name": "fecha_desde",
+						"type": "String"
+					},
+					{
+						"name": "fecha_hasta",
+						"type": "String"
+					},
+					{
+						"name": "estado",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_vehiculos_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "vehiculos.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "nro_bus",
+						"type": "String"
+					},
+					{
+						"name": "placa",
+						"type": "String"
+					},
+					{
+						"name": "tipo_bus",
+						"type": "String"
+					},
+					{
+						"name": "capacidad",
+						"type": "String"
+					},
+					{
+						"name": "fecha_desde",
+						"type": "String"
+					},
+					{
+						"name": "fecha_hasta",
+						"type": "String"
+					},
+					{
+						"name": "estado",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_viajes_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sa_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "viajes.csv",
+						"folderPath": "datos_csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "id_viaje",
+						"type": "String"
+					},
+					{
+						"name": "cod_ruta",
+						"type": "String"
+					},
+					{
+						"name": "nro_bus",
+						"type": "String"
+					},
+					{
+						"name": "fec_servicio",
+						"type": "String"
+					},
+					{
+						"name": "hora_programada",
+						"type": "String"
+					},
+					{
+						"name": "hora_salida",
+						"type": "String"
+					},
+					{
+						"name": "hora_llegada",
+						"type": "String"
+					},
+					{
+						"name": "pasajeros_reportados",
+						"type": "String"
+					},
+					{
+						"name": "km_recorridos",
+						"type": "String"
+					},
+					{
+						"name": "estado_viaje",
+						"type": "String"
+					},
+					{
+						"name": "tipo_metrica",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sa_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sa_transporte')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('sa_transporte_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('sa_transporte_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_dw_transporte')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('sql_dw_transporte_properties_typeProperties_server')]",
+					"database": "[parameters('sql_dw_transporte_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('sql_dw_transporte_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('sql_dw_transporte_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_rpe_transporte')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('sql_rpe_transporte_properties_typeProperties_server')]",
+					"database": "[parameters('sql_rpe_transporte_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('sql_rpe_transporte_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('sql_rpe_transporte_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
