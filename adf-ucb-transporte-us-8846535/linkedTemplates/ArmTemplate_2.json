@@ -1,0 +1,173 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-ucb-transporte-us-8846535"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_rutas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "bronze_rutas_csv",
+								"type": "DatasetReference"
+							},
+							"name": "csv"
+						},
+						{
+							"dataset": {
+								"referenceName": "bronze_rutas_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sql"
+						},
+						{
+							"dataset": {
+								"referenceName": "bronze_rutas_2022_xsl",
+								"type": "DatasetReference"
+							},
+							"name": "xls"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_rutas",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "union2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          cod_ruta as string,",
+						"          nombre_ruta as string,",
+						"          origen as string,",
+						"          destino as string,",
+						"          fecha_desde as string,",
+						"          fecha_hasta as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> csv",
+						"source(output(",
+						"          AnioFuente as string,",
+						"          RutaHistoricaId as string,",
+						"          CodigoRuta as string,",
+						"          NombreRuta as string,",
+						"          Origen as string,",
+						"          Destino as string,",
+						"          VigenciaDesde as string,",
+						"          VigenciaHasta as string,",
+						"          Estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sql",
+						"source(output(",
+						"          cod_ruta as string,",
+						"          nombre_ruta as string,",
+						"          origen as string,",
+						"          destino as string,",
+						"          fecha_desde as string,",
+						"          fecha_hasta as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> xls",
+						"csv select(mapColumn(",
+						"          CodigoRuta = cod_ruta,",
+						"          NombreRuta = nombre_ruta,",
+						"          Origen = origen,",
+						"          Destino = destino,",
+						"          VigenciaDesde = fecha_desde,",
+						"          VigenciaHasta = fecha_hasta,",
+						"          Estado = estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"xls select(mapColumn(",
+						"          CodigoRuta = cod_ruta,",
+						"          NombreRuta = nombre_ruta,",
+						"          Origen = origen,",
+						"          Destino = destino,",
+						"          VigenciaDesde = fecha_desde,",
+						"          VigenciaHasta = fecha_hasta,",
+						"          Estado = estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1, sql union(byName: true)~> union1",
+						"union1, select2 union(byName: true)~> union2",
+						"union2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          AnioFuente as string,",
+						"          RutaHistoricaId as string,",
+						"          CodigoRuta as string,",
+						"          NombreRuta as string,",
+						"          Origen as string,",
+						"          Destino as string,",
+						"          VigenciaDesde as string,",
+						"          VigenciaHasta as string,",
+						"          Estado as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AnioFuente,",
+						"          RutaHistoricaId,",
+						"          CodigoRuta,",
+						"          NombreRuta,",
+						"          Origen,",
+						"          Destino,",
+						"          VigenciaDesde,",
+						"          VigenciaHasta,",
+						"          Estado",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

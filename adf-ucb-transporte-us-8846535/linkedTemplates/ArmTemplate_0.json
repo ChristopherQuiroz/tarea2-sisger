@@ -134,31 +134,40 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "fecha_servicio",
 						"type": "String"
 					},
 					{
+						"name": "cod_ruta",
 						"type": "String"
 					},
 					{
+						"name": "nro_parada",
 						"type": "String"
 					},
 					{
+						"name": "franja",
 						"type": "String"
 					},
 					{
+						"name": "estimacion_abordajes",
 						"type": "String"
 					},
 					{
+						"name": "estimacion_descensos",
 						"type": "String"
 					},
 					{
+						"name": "demanda_no_atendida",
 						"type": "String"
 					},
 					{
+						"name": "metodo",
 						"type": "String"
 					}
 				]
@@ -188,31 +197,40 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "fecha_servicio",
 						"type": "String"
 					},
 					{
+						"name": "cod_ruta",
 						"type": "String"
 					},
 					{
+						"name": "nro_parada",
 						"type": "String"
 					},
 					{
+						"name": "franja",
 						"type": "String"
 					},
 					{
+						"name": "estimacion_abordajes",
 						"type": "String"
 					},
 					{
+						"name": "estimacion_descensos",
 						"type": "String"
 					},
 					{
+						"name": "demanda_no_atendida",
 						"type": "String"
 					},
 					{
+						"name": "metodo",
 						"type": "String"
 					}
 				]
@@ -307,40 +325,52 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "id_incidente",
 						"type": "String"
 					},
 					{
+						"name": "tipo",
 						"type": "String"
 					},
 					{
+						"name": "severidad",
 						"type": "String"
 					},
 					{
+						"name": "fecha_inicio",
 						"type": "String"
 					},
 					{
+						"name": "hora_inicio",
 						"type": "String"
 					},
 					{
+						"name": "fecha_fin",
 						"type": "String"
 					},
 					{
+						"name": "hora_fin",
 						"type": "String"
 					},
 					{
+						"name": "fecha_registro",
 						"type": "String"
 					},
 					{
+						"name": "rutas_afectadas",
 						"type": "String"
 					},
 					{
+						"name": "vehiculo_afectado",
 						"type": "String"
 					},
 					{
+						"name": "descripcion",
 						"type": "String"
 					}
 				]
@@ -370,40 +400,52 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "id_incidente",
 						"type": "String"
 					},
 					{
+						"name": "tipo",
 						"type": "String"
 					},
 					{
+						"name": "severidad",
 						"type": "String"
 					},
 					{
+						"name": "fecha_inicio",
 						"type": "String"
 					},
 					{
+						"name": "hora_inicio",
 						"type": "String"
 					},
 					{
+						"name": "fecha_fin",
 						"type": "String"
 					},
 					{
+						"name": "hora_fin",
 						"type": "String"
 					},
 					{
+						"name": "fecha_registro",
 						"type": "String"
 					},
 					{
+						"name": "rutas_afectadas",
 						"type": "String"
 					},
 					{
+						"name": "vehiculo_afectado",
 						"type": "String"
 					},
 					{
+						"name": "descripcion",
 						"type": "String"
 					}
 				]
@@ -510,13 +552,16 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "elemento",
 						"type": "String"
 					},
 					{
+						"name": "detalle",
 						"type": "String"
 					}
 				]
@@ -546,13 +591,16 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "elemento",
 						"type": "String"
 					},
 					{
+						"name": "detalle",
 						"type": "String"
 					}
 				]
@@ -582,31 +630,40 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "nro_parada",
 						"type": "String"
 					},
 					{
+						"name": "nombre_parada",
 						"type": "String"
 					},
 					{
+						"name": "zona",
 						"type": "String"
 					},
 					{
+						"name": "latitud",
 						"type": "String"
 					},
 					{
+						"name": "longitud",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
@@ -636,31 +693,40 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "nro_parada",
 						"type": "String"
 					},
 					{
+						"name": "nombre_parada",
 						"type": "String"
 					},
 					{
+						"name": "zona",
 						"type": "String"
 					},
 					{
+						"name": "latitud",
 						"type": "String"
 					},
 					{
+						"name": "longitud",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
@@ -755,28 +821,36 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "cod_ruta",
 						"type": "String"
 					},
 					{
+						"name": "nombre_ruta",
 						"type": "String"
 					},
 					{
+						"name": "origen",
 						"type": "String"
 					},
 					{
+						"name": "destino",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
@@ -806,28 +880,36 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "cod_ruta",
 						"type": "String"
 					},
 					{
+						"name": "nombre_ruta",
 						"type": "String"
 					},
 					{
+						"name": "origen",
 						"type": "String"
 					},
 					{
+						"name": "destino",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
@@ -918,28 +1000,36 @@
 						"fileName": "operacion_2022.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "nro_bus",
 						"type": "String"
 					},
 					{
+						"name": "placa",
 						"type": "String"
 					},
 					{
+						"name": "tipo_bus",
 						"type": "String"
 					},
 					{
+						"name": "capacidad",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
@@ -969,28 +1059,36 @@
 						"fileName": "operacion_2023.xlsx",
 						"folderPath": "datos_xls",
 						"fileSystem": "raw"
-					}
+					},
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
+						"name": "nro_bus",
 						"type": "String"
 					},
 					{
+						"name": "placa",
 						"type": "String"
 					},
 					{
+						"name": "tipo_bus",
 						"type": "String"
 					},
 					{
+						"name": "capacidad",
 						"type": "String"
 					},
 					{
+						"name": "fecha_desde",
 						"type": "String"
 					},
 					{
+						"name": "fecha_hasta",
 						"type": "String"
 					},
 					{
+						"name": "estado",
 						"type": "String"
 					}
 				]
