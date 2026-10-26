@@ -45,7 +45,7 @@
 		},
 		"sql_rpe_transporte_properties_typeProperties_userName": {
 			"type": "string",
-			"defaultValue": "chrisquiroz"
+			"defaultValue": " chrisquiroz"
 		},
 		"containerUri": {
 			"type": "string",
