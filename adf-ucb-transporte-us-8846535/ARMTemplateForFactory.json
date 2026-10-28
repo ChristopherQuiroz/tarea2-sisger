@@ -4176,6 +4176,433 @@
 				"[concat(variables('factoryId'), '/datasets/dw_bronze_demanda_paradas')]",
 				"[concat(variables('factoryId'), '/datasets/dw_silver_demanda_paradas_sql')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_incidentes')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_incidentes",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_incidentes_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          IncidenteId as string,",
+						"          TipoIncidente as string,",
+						"          Severidad as string,",
+						"          FechaHoraInicio as string,",
+						"          FechaHoraFin as string,",
+						"          FechaHoraRegistro as string,",
+						"          VehiculoId as string,",
+						"          Descripcion as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(IncidenteId = upper(trim(IncidenteId)),",
+						"          TipoIncidente = upper(trim(TipoIncidente)),",
+						"          Severidad = upper(trim(Severidad)),",
+						"          FechaHoraInicio = toTimestamp(trim(FechaHoraInicio),   'yyyy-MM-dd HH:mm:ss'),",
+						"          FechaHoraFin = toTimestamp(trim(FechaHoraFin),      'yyyy-MM-dd HH:mm:ss'),",
+						"          FechaHoraRegistro = toTimestamp(trim(FechaHoraRegistro), 'yyyy-MM-dd HH:mm:ss'),",
+						"          Descripcion = trim(Descripcion)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          IncidenteId as string,",
+						"          TipoIncidente as string,",
+						"          Severidad as string,",
+						"          FechaHoraInicio as timestamp,",
+						"          FechaHoraFin as timestamp,",
+						"          FechaHoraRegistro as timestamp,",
+						"          VehiculoId as string,",
+						"          Descripcion as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dw_bronze_incidentes')]",
+				"[concat(variables('factoryId'), '/datasets/dw_silver_incidentes_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_paradas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_paradas",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_paradas_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          ParadaHistoricaId as string,",
+						"          CodigoPublicado as string,",
+						"          NombreParada as string,",
+						"          Zona as string,",
+						"          Latitud as string,",
+						"          Longitud as string,",
+						"          VigenciaDesde as string,",
+						"          VigenciaHasta as string,",
+						"          Estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(ParadaHistoricaId = upper(trim(ParadaHistoricaId)),",
+						"          CodigoPublicado = upper(trim(CodigoPublicado)),",
+						"          NombreParada = trim(NombreParada),",
+						"          Zona = upper(trim(Zona)),",
+						"          Latitud = toDecimal(trim(Latitud), 9, 6),",
+						"          Longitud = toDecimal(trim(Longitud), 9, 6),",
+						"          VigenciaDesde = toDate(trim(VigenciaDesde), 'dd/MM/yyyy'),",
+						"          VigenciaHasta = toDate(trim(VigenciaHasta), 'dd/MM/yyyy'),",
+						"          Estado = upper(trim(Estado))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ParadaHistoricaId as string,",
+						"          CodigoPublicado as string,",
+						"          NombreParada as string,",
+						"          Zona as string,",
+						"          Latitud as decimal(9,6),",
+						"          Longitud as decimal(9,6),",
+						"          VigenciaDesde as date,",
+						"          VigenciaHasta as date,",
+						"          Estado as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dw_bronze_paradas')]",
+				"[concat(variables('factoryId'), '/datasets/dw_silver_paradas_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_rutas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_rutas",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_rutas_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          RutaHistoricaId as string,",
+						"          CodigoRuta as string,",
+						"          NombreRuta as string,",
+						"          Origen as string,",
+						"          Destino as string,",
+						"          VigenciaDesde as string,",
+						"          VigenciaHasta as string,",
+						"          Estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(CodigoRuta = concat('R-', lpad(replace(replace(upper(trim(CodigoRuta)), 'RUTA ', ''), 'R-', ''), 2, '0')),",
+						"          NombreRuta = trim(NombreRuta),",
+						"          Origen = trim(Origen),",
+						"          Destino = trim(Destino),",
+						"          VigenciaDesde = toDate(trim(VigenciaDesde), 'dd/MM/yyyy'),",
+						"          VigenciaHasta = toDate(trim(VigenciaHasta), 'dd/MM/yyyy'),",
+						"          Estado = upper(trim(Estado))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          RutaHistoricaId as string,",
+						"          CodigoRuta as string,",
+						"          NombreRuta as string,",
+						"          Origen as string,",
+						"          Destino as string,",
+						"          VigenciaDesde as date,",
+						"          VigenciaHasta as date,",
+						"          Estado as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dw_bronze_rutas')]",
+				"[concat(variables('factoryId'), '/datasets/dw_silver_rutas_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_vehiculos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_vehiculos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_vehiculos_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          VehiculoId as string,",
+						"          Placa as string,",
+						"          TipoVehiculo as string,",
+						"          CapacidadEfectiva as string,",
+						"          VigenciaDesde as string,",
+						"          VigenciaHasta as string,",
+						"          Estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(VehiculoId = concat('V-', lpad(replace(upper(trim(VehiculoId)), 'V-', ''), 3, '0')),",
+						"          Placa = upper(trim(Placa)),",
+						"          TipoVehiculo = upper(trim(TipoVehiculo)),",
+						"          CapacidadEfectiva = toInteger(trim(CapacidadEfectiva)),",
+						"          VigenciaDesde = toDate(trim(VigenciaDesde), 'yyyy-MM-dd'),",
+						"          VigenciaHasta = toDate(trim(VigenciaHasta), 'yyyy-MM-dd'),",
+						"          Estado = upper(trim(Estado))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          VehiculoId as string,",
+						"          Placa as string,",
+						"          TipoVehiculo as string,",
+						"          CapacidadEfectiva as integer,",
+						"          VigenciaDesde as date,",
+						"          VigenciaHasta as date,",
+						"          Estado as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dw_bronze_vehiculos')]",
+				"[concat(variables('factoryId'), '/datasets/dw_silver_vehiculos_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_viajes')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_viajes",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_viajes_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          ViajeId as string,",
+						"          RutaHistoricaId as string,",
+						"          VehiculoId as string,",
+						"          FechaServicio as string,",
+						"          HoraProgramada as string,",
+						"          HoraSalida as string,",
+						"          HoraLlegada as string,",
+						"          ValidacionesTarjeta as string,",
+						"          KmRecorridos as string,",
+						"          EstadoViaje as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 derive(ViajeId = concat('VJ-', toString(AnioFuente), '-', lpad(trim(ViajeId), 5, '0')),",
+						"          FechaServicio = toDate(trim(FechaServicio), 'yyyy-MM-dd'),",
+						"          HoraProgramada = toTimestamp(trim(HoraProgramada), 'yyyy-MM-dd HH:mm:ss'),",
+						"          HoraSalida = toTimestamp(trim(HoraSalida),  'yyyy-MM-dd HH:mm:ss'),",
+						"          HoraLlegada = toTimestamp(trim(HoraLlegada), 'yyyy-MM-dd HH:mm:ss'),",
+						"          ValidacionesTarjeta = toInteger(trim(ValidacionesTarjeta)),",
+						"          KmRecorridos = toDecimal(replace(trim(KmRecorridos), ',', '.'), 8, 1),",
+						"          EstadoViaje = upper(trim(EstadoViaje))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ViajeId as string,",
+						"          RutaHistoricaId as string,",
+						"          VehiculoId as string,",
+						"          FechaServicio as date,",
+						"          HoraProgramada as timestamp,",
+						"          HoraSalida as timestamp,",
+						"          HoraLlegada as timestamp,",
+						"          ValidacionesTarjeta as integer,",
+						"          KmRecorridos as decimal(8,1),",
+						"          EstadoViaje as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dw_bronze_viajes')]",
+				"[concat(variables('factoryId'), '/datasets/dw_silver_viajes_sql')]"
+			]
 		}
 	]
 }
