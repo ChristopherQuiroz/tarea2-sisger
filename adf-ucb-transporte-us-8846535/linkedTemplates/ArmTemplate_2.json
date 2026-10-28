@@ -1387,6 +1387,100 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_demanda_paradas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dw_bronze_demanda_paradas",
+								"type": "DatasetReference"
+							},
+							"name": "bronze"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dw_silver_demanda_paradas_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "LimpiezaDeDatos"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          AnioFuente as string,",
+						"          DemandaId as string,",
+						"          FechaServicio as string,",
+						"          RutaHistoricaId as string,",
+						"          ParadaHistoricaId as string,",
+						"          Franja as string,",
+						"          ValidacionesTarjeta as string,",
+						"          Descensos as string,",
+						"          DemandaNoAtendida as string,",
+						"          Metodo as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> bronze",
+						"bronze derive(FechaServicio = toDate(trim(FechaServicio), 'dd/MM/yyyy'),",
+						"          RutaHistoricaId = replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''),",
+						"          Franja = replace(trim(Franja), ' ', ''),",
+						"          ValidacionesTarjeta = toInteger(trim(ValidacionesTarjeta)),",
+						"          Descensos = toInteger(trim(Descensos)),",
+						"          DemandaNoAtendida = toInteger(trim(DemandaNoAtendida)),",
+						"          Metodo = upper(trim(Metodo))) ~> LimpiezaDeDatos",
+						"LimpiezaDeDatos sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          DemandaId as string,",
+						"          FechaServicio as date,",
+						"          RutaHistoricaId as string,",
+						"          ParadaHistoricaId as string,",
+						"          Franja as string,",
+						"          ValidacionesTarjeta as integer,",
+						"          Descensos as integer,",
+						"          DemandaNoAtendida as integer,",
+						"          Metodo as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          DemandaId,",
+						"          FechaServicio,",
+						"          RutaHistoricaId,",
+						"          ParadaHistoricaId,",
+						"          Franja,",
+						"          ValidacionesTarjeta,",
+						"          Descensos,",
+						"          DemandaNoAtendida,",
+						"          Metodo",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_bronze')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
