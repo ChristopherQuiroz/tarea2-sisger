@@ -4159,7 +4159,6 @@
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          DemandaId,",
 						"          FechaServicio,",
 						"          RutaHistoricaId,",
 						"          ParadaHistoricaId,",
@@ -4252,7 +4251,17 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          IncidenteId,",
+						"          TipoIncidente,",
+						"          Severidad,",
+						"          FechaHoraInicio,",
+						"          FechaHoraFin,",
+						"          FechaHoraRegistro,",
+						"          VehiculoId,",
+						"          Descripcion",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -4340,7 +4349,18 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ParadaHistoricaId,",
+						"          CodigoPublicado,",
+						"          NombreParada,",
+						"          Zona,",
+						"          Latitud,",
+						"          Longitud,",
+						"          VigenciaDesde,",
+						"          VigenciaHasta,",
+						"          Estado",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -4424,7 +4444,17 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          RutaHistoricaId,",
+						"          CodigoRuta,",
+						"          NombreRuta,",
+						"          Origen,",
+						"          Destino,",
+						"          VigenciaDesde,",
+						"          VigenciaHasta,",
+						"          Estado",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -4506,7 +4536,16 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          VehiculoId,",
+						"          Placa,",
+						"          TipoVehiculo,",
+						"          CapacidadEfectiva,",
+						"          VigenciaDesde,",
+						"          VigenciaHasta,",
+						"          Estado",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -4595,13 +4634,296 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ViajeId,",
+						"          RutaHistoricaId,",
+						"          VehiculoId,",
+						"          FechaServicio,",
+						"          HoraProgramada,",
+						"          HoraSalida,",
+						"          HoraLlegada,",
+						"          ValidacionesTarjeta,",
+						"          KmRecorridos,",
+						"          EstadoViaje",
+						"     )) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/dw_bronze_viajes')]",
 				"[concat(variables('factoryId'), '/datasets/dw_silver_viajes_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Script1",
+						"description": "IF EXISTS (\n    SELECT 1\n    FROM bronze.vehiculos\n    WHERE NULLIF(LTRIM(RTRIM(nro_bus)), '') IS NULL\n       OR NULLIF(LTRIM(RTRIM(placa)), '') IS NULL\n       OR NULLIF(LTRIM(RTRIM(tipo_bus)), '') IS NULL\n       OR TRY_CONVERT(int, NULLIF(LTRIM(RTRIM(capacidad)), '')) IS NULL\n       OR TRY_CONVERT(date, NULLIF(LTRIM(RTRIM(fecha_desde)), ''), 23) IS NULL\n       OR TRY_CONVERT(date, NULLIF(LTRIM(RTRIM(fecha_hasta)), ''), 23) IS NULL\n       OR NULLIF(LTRIM(RTRIM(estado)), '') IS NULL\n)\n    THROW 51002, 'Bronze.vehiculos tiene valores vacíos o inválidos; se cancela pipeline_silver.', 1;",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "sql_dw_transporte",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "SELECT TOP (100)\n    AnioFuente,\n    VehiculoId,\n    Placa,\n    TipoVehiculo,\n    CapacidadEfectiva,\n    VigenciaDesde,\n    VigenciaHasta,\n    Estado,\n\n    CASE WHEN NULLIF(LTRIM(RTRIM(AnioFuente)), '') IS NULL\n         THEN 1 ELSE 0 END AS AnioFuenteVacio,\n    CASE WHEN NULLIF(LTRIM(RTRIM(AnioFuente)), '') IS NOT NULL\n              AND TRY_CONVERT(smallint, LTRIM(RTRIM(AnioFuente))) IS NULL\n         THEN 1 ELSE 0 END AS AnioFuenteInvalido,\n\n    CASE WHEN NULLIF(LTRIM(RTRIM(VehiculoId)), '') IS NULL\n         THEN 1 ELSE 0 END AS VehiculoIdVacio,\n    CASE WHEN NULLIF(LTRIM(RTRIM(Placa)), '') IS NULL\n         THEN 1 ELSE 0 END AS PlacaVacia,\n    CASE WHEN NULLIF(LTRIM(RTRIM(TipoVehiculo)), '') IS NULL\n         THEN 1 ELSE 0 END AS TipoVehiculoVacio,\n\n    CASE WHEN NULLIF(LTRIM(RTRIM(CapacidadEfectiva)), '') IS NOT NULL\n              AND TRY_CONVERT(int, LTRIM(RTRIM(CapacidadEfectiva))) IS NULL\n         THEN 1 ELSE 0 END AS CapacidadInvalida,\n\n    CASE WHEN NULLIF(LTRIM(RTRIM(VigenciaDesde)), '') IS NOT NULL\n              AND TRY_CONVERT(date, LTRIM(RTRIM(VigenciaDesde)), 23) IS NULL\n         THEN 1 ELSE 0 END AS VigenciaDesdeInvalida,\n    CASE WHEN NULLIF(LTRIM(RTRIM(VigenciaHasta)), '') IS NOT NULL\n              AND TRY_CONVERT(date, LTRIM(RTRIM(VigenciaHasta)), 23) IS NULL\n         THEN 1 ELSE 0 END AS VigenciaHastaInvalida,\n\n    CASE WHEN NULLIF(LTRIM(RTRIM(Estado)), '') IS NULL\n         THEN 1 ELSE 0 END AS EstadoVacio\nFROM bronze.vehiculos\nWHERE NULLIF(LTRIM(RTRIM(AnioFuente)), '') IS NULL\n   OR TRY_CONVERT(smallint, NULLIF(LTRIM(RTRIM(AnioFuente)), '')) IS NULL\n   OR NULLIF(LTRIM(RTRIM(VehiculoId)), '') IS NULL\n   OR NULLIF(LTRIM(RTRIM(Placa)), '') IS NULL\n   OR NULLIF(LTRIM(RTRIM(TipoVehiculo)), '') IS NULL\n   OR TRY_CONVERT(int, NULLIF(LTRIM(RTRIM(CapacidadEfectiva)), '')) IS NULL\n   OR TRY_CONVERT(date, NULLIF(LTRIM(RTRIM(VigenciaDesde)), ''), 23) IS NULL\n   OR TRY_CONVERT(date, NULLIF(LTRIM(RTRIM(VigenciaHasta)), ''), 23) IS NULL\n   OR NULLIF(LTRIM(RTRIM(Estado)), '') IS NULL;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Script1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_demanda_paradas",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"bronze": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Data flow2",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_incidentes",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Data flow3",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_paradas",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Data flow4",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_rutas",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Data flow5",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow4",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_vehiculos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Data flow6",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow5",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_viajes",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/sql_dw_transporte')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_demanda_paradas')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_incidentes')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_paradas')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_rutas')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_vehiculos')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_viajes')]"
 			]
 		}
 	]
