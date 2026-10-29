@@ -308,13 +308,31 @@
 							"name": "normalizarxls"
 						},
 						{
+							"name": "norxls23"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
 							"name": "union1"
 						},
 						{
 							"name": "union2"
 						},
 						{
-							"name": "norxls23"
+							"name": "surrogateKey2"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "surrogateKey3"
+						},
+						{
+							"name": "derivedColumn3"
 						}
 					],
 					"scriptLines": [
@@ -397,8 +415,6 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> normalizarxls",
-						"normalizarcsv, sql union(byName: true)~> union1",
-						"union1, normalizarxls, norxls23 union(byName: true)~> union2",
 						"xls23 select(mapColumn(",
 						"          FechaServicio = fecha_servicio,",
 						"          RutaHistoricaId = cod_ruta,",
@@ -411,6 +427,20 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> norxls23",
+						"normalizarcsv keyGenerate(output(CorrelativoDemanda as long),",
+						"     startAt: 9201L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 derive(DemandaId = concat('DM-2024-', lpad(toString(CorrelativoDemanda), 5, '0'))) ~> derivedColumn1",
+						"derivedColumn1, sql union(byName: true)~> union1",
+						"union1, derivedColumn2, derivedColumn3 union(byName: true)~> union2",
+						"normalizarxls keyGenerate(output(Correlativo as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey2",
+						"surrogateKey2 derive(DemandaId = concat('DM-2022-', lpad(toString(Correlativo), 5, '0'))) ~> derivedColumn2",
+						"norxls23 keyGenerate(output(Correlativo as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey3",
+						"surrogateKey3 derive(DemandaId = concat('DM-2023-', lpad(toString(Correlativo), 5, '0'))) ~> derivedColumn3",
 						"union2 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -432,7 +462,19 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AnioFuente,",
+						"          DemandaId,",
+						"          FechaServicio,",
+						"          RutaHistoricaId,",
+						"          ParadaHistoricaId,",
+						"          Franja,",
+						"          ValidacionesTarjeta,",
+						"          Descensos,",
+						"          DemandaNoAtendida,",
+						"          Metodo",
+						"     )) ~> sink1"
 					]
 				}
 			},
@@ -1436,7 +1478,11 @@
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     format: 'table') ~> bronze",
-						"bronze derive(FechaServicio = toDate(trim(FechaServicio), 'dd/MM/yyyy'),",
+						"bronze derive(FechaServicio = iif(\r",
+						"    length(trim(FechaServicio)) == 10,\r",
+						"    toDate(trim(FechaServicio), 'yyyy-MM-dd'),\r",
+						"    addDays(toDate('1899-12-30', 'yyyy-MM-dd'), toInteger(trim(FechaServicio)))\r",
+						"),",
 						"          RutaHistoricaId = replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''),",
 						"          Franja = replace(trim(Franja), ' ', ''),",
 						"          ValidacionesTarjeta = toInteger(trim(ValidacionesTarjeta)),",
@@ -1465,6 +1511,7 @@
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
+						"          DemandaId,",
 						"          FechaServicio,",
 						"          RutaHistoricaId,",
 						"          ParadaHistoricaId,",
