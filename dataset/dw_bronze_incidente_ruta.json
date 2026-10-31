@@ -1,0 +1,36 @@
+{
+	"name": "dw_bronze_incidente_ruta",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "IncidenteId",
+				"type": "varchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "varchar"
+			},
+			{
+				"name": "EsPrincipal",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "IncidenteRuta"
+		}
+	}
+}

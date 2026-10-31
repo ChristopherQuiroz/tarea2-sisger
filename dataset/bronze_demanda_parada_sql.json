@@ -1,0 +1,64 @@
+{
+	"name": "bronze_demanda_parada_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_rpe_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "DemandaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FechaServicio",
+				"type": "date"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ParadaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Franja",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ValidacionesTarjeta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Descensos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DemandaNoAtendida",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Metodo",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DemandaParadasAzure"
+		}
+	}
+}

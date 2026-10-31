@@ -1,0 +1,78 @@
+{
+	"name": "df_silver_incidente_ruta",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_incidente_ruta",
+						"type": "DatasetReference"
+					},
+					"name": "bronce"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_silver_incidente_ruta_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "limpiar"
+				},
+				{
+					"name": "validos"
+				},
+				{
+					"name": "deduplicar"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AnioFuente as string,",
+				"          IncidenteId as string,",
+				"          RutaHistoricaId as string,",
+				"          EsPrincipal as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> bronce",
+				"bronce derive(          IncidenteId = upper(trim(IncidenteId)),",
+				"          RutaHistoricaId = iif(isNull(RutaHistoricaId) || trim(RutaHistoricaId) == '', toString(null()), iif(regexMatch(upper(trim(RutaHistoricaId)), '^RH-'), upper(trim(RutaHistoricaId)), iif(upper(trim(RutaHistoricaId)) == 'R12-N', 'RH-12-N', iif(upper(trim(RutaHistoricaId)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0')))))))),",
+				"          EsPrincipal = iif(trim(EsPrincipal) == '1' || lower(trim(EsPrincipal)) == 'true', true(), false())) ~> limpiar",
+				"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$') && not(isNull(RutaHistoricaId)) && regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
+				"validos aggregate(groupBy(IncidenteId, RutaHistoricaId),",
+				"          EsPrincipal = first(EsPrincipal)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          IncidenteId as string,",
+				"          RutaHistoricaId as string,",
+				"          EsPrincipal as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          IncidenteId = string,",
+				"          RutaHistoricaId = string,",
+				"          EsPrincipal = boolean",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

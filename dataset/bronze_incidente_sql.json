@@ -1,0 +1,37 @@
+{
+	"name": "bronze_incidente_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_rpe_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "IncidenteId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EsPrincipal",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "IncidenteRutaAzure"
+		}
+	}
+}

@@ -1,0 +1,109 @@
+{
+	"name": "df_silver_paradas",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_paradas",
+						"type": "DatasetReference"
+					},
+					"name": "bronce"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_silver_paradas_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "limpiar"
+				},
+				{
+					"name": "validos"
+				},
+				{
+					"name": "deduplicar"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AnioFuente as string,",
+				"          ParadaHistoricaId as string,",
+				"          CodigoPublicado as string,",
+				"          NombreParada as string,",
+				"          Zona as string,",
+				"          Latitud as string,",
+				"          Longitud as string,",
+				"          VigenciaDesde as string,",
+				"          VigenciaHasta as string,",
+				"          Estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> bronce",
+				"bronce derive(          ParadaHistoricaId = upper(trim(ParadaHistoricaId)),",
+				"          CodigoPublicado = upper(trim(CodigoPublicado)),",
+				"          NombreParada = trim(NombreParada),",
+				"          Zona = trim(Zona),",
+				"          Latitud = toDecimal(replace(trim(Latitud), ',', '.'), 9, 6),",
+				"          Longitud = toDecimal(replace(trim(Longitud), ',', '.'), 9, 6),",
+				"          VigenciaDesde = iif(isNull(VigenciaDesde) || trim(VigenciaDesde) == '', toDate(null()), iif(regexMatch(trim(VigenciaDesde), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaDesde), '(\\\\d+)', 1))), iif(instr(trim(VigenciaDesde), '/') > 0, toDate(left(trim(VigenciaDesde), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaDesde), 10), 'yyyy-MM-dd')))),",
+				"          VigenciaHasta = iif(isNull(VigenciaHasta) || trim(VigenciaHasta) == '', toDate(null()), iif(regexMatch(trim(VigenciaHasta), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaHasta), '(\\\\d+)', 1))), iif(instr(trim(VigenciaHasta), '/') > 0, toDate(left(trim(VigenciaHasta), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaHasta), 10), 'yyyy-MM-dd')))),",
+				"          Estado = upper(trim(Estado))) ~> limpiar",
+				"limpiar filter(not(isNull(ParadaHistoricaId)) && ParadaHistoricaId != '' && NombreParada != '' && not(isNull(Latitud)) && not(isNull(Longitud)) && not(isNull(VigenciaDesde)) && not(isNull(VigenciaHasta)) && Estado != '') ~> validos",
+				"validos aggregate(groupBy(ParadaHistoricaId),",
+				"          CodigoPublicado = first(CodigoPublicado),",
+				"          NombreParada = first(NombreParada),",
+				"          Zona = first(Zona),",
+				"          Latitud = first(Latitud),",
+				"          Longitud = first(Longitud),",
+				"          VigenciaDesde = first(VigenciaDesde),",
+				"          VigenciaHasta = first(VigenciaHasta),",
+				"          Estado = first(Estado)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ParadaHistoricaId as string,",
+				"          CodigoPublicado as string,",
+				"          NombreParada as string,",
+				"          Zona as string,",
+				"          Latitud as decimal(9,6),",
+				"          Longitud as decimal(9,6),",
+				"          VigenciaDesde as date,",
+				"          VigenciaHasta as date,",
+				"          Estado as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ParadaHistoricaId = string,",
+				"          CodigoPublicado = string,",
+				"          NombreParada = string,",
+				"          Zona = string,",
+				"          Latitud = decimal(9,6),",
+				"          Longitud = decimal(9,6),",
+				"          VigenciaDesde = date,",
+				"          VigenciaHasta = date,",
+				"          Estado = string",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,213 @@
+{
+	"name": "df_bronze_incidente_ruta",
+	"properties": {
+		"folder": {
+			"name": "Bronze"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_incidentes_csv",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_incidentes_2022_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls22"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_incidentes_2023_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls23"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_incidente_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_incidente_ruta",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "dercsv"
+				},
+				{
+					"name": "flacsv"
+				},
+				{
+					"name": "espcsv"
+				},
+				{
+					"name": "norcsv"
+				},
+				{
+					"name": "derxls22"
+				},
+				{
+					"name": "flaxls22"
+				},
+				{
+					"name": "espxls22"
+				},
+				{
+					"name": "norxls22"
+				},
+				{
+					"name": "derxls23"
+				},
+				{
+					"name": "flaxls23"
+				},
+				{
+					"name": "espxls23"
+				},
+				{
+					"name": "norxls23"
+				},
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_incidente as string,",
+				"          tipo as string,",
+				"          severidad as string,",
+				"          fecha_inicio as string,",
+				"          hora_inicio as string,",
+				"          fecha_fin as string,",
+				"          hora_fin as string,",
+				"          fecha_registro as string,",
+				"          rutas_afectadas as string,",
+				"          vehiculo_afectado as string,",
+				"          descripcion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"source(output(",
+				"          id_incidente as string,",
+				"          tipo as string,",
+				"          severidad as string,",
+				"          fecha_inicio as string,",
+				"          hora_inicio as string,",
+				"          fecha_fin as string,",
+				"          hora_fin as string,",
+				"          fecha_registro as string,",
+				"          rutas_afectadas as string,",
+				"          vehiculo_afectado as string,",
+				"          descripcion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls22",
+				"source(output(",
+				"          id_incidente as string,",
+				"          tipo as string,",
+				"          severidad as string,",
+				"          fecha_inicio as string,",
+				"          hora_inicio as string,",
+				"          fecha_fin as string,",
+				"          hora_fin as string,",
+				"          fecha_registro as string,",
+				"          rutas_afectadas as string,",
+				"          vehiculo_afectado as string,",
+				"          descripcion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls23",
+				"source(output(",
+				"          AnioFuente as string,",
+				"          IncidenteId as string,",
+				"          RutaHistoricaId as string,",
+				"          EsPrincipal as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sql",
+				"csv derive(          AnioFuente = regexExtract(trim(id_incidente), 'IN-(\\\\d{4})', 1),",
+				"          IncidenteId = id_incidente,",
+				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> dercsv",
+				"dercsv flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flacsv",
+				"flacsv derive(          EsPrincipal = iif(trim(RutaHistoricaId) == trim(split(rutas_afectadas, '\\\\|')[1]), '1', '0')) ~> espcsv",
+				"espcsv select(mapColumn(",
+				"          AnioFuente,",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norcsv",
+				"xls22 derive(          AnioFuente = '2022',",
+				"          IncidenteId = id_incidente,",
+				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> derxls22",
+				"derxls22 flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flaxls22",
+				"flaxls22 derive(          EsPrincipal = iif(trim(RutaHistoricaId) == trim(split(rutas_afectadas, '\\\\|')[1]), '1', '0')) ~> espxls22",
+				"espxls22 select(mapColumn(",
+				"          AnioFuente,",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls22",
+				"xls23 derive(          AnioFuente = '2023',",
+				"          IncidenteId = id_incidente,",
+				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> derxls23",
+				"derxls23 flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flaxls23",
+				"flaxls23 derive(          EsPrincipal = iif(trim(RutaHistoricaId) == trim(split(rutas_afectadas, '\\\\|')[1]), '1', '0')) ~> espxls23",
+				"espxls23 select(mapColumn(",
+				"          AnioFuente,",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls23",
+				"norcsv, norxls22, norxls23, sql union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AnioFuente as string,",
+				"          IncidenteId as string,",
+				"          RutaHistoricaId as string,",
+				"          EsPrincipal as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AnioFuente,",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

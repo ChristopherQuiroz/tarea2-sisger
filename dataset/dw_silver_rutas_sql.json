@@ -1,0 +1,52 @@
+{
+	"name": "dw_silver_rutas_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CodigoRuta",
+				"type": "nvarchar"
+			},
+			{
+				"name": "NombreRuta",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Origen",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Destino",
+				"type": "nvarchar"
+			},
+			{
+				"name": "VigenciaDesde",
+				"type": "date"
+			},
+			{
+				"name": "VigenciaHasta",
+				"type": "date"
+			},
+			{
+				"name": "Estado",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "Rutas"
+		}
+	}
+}

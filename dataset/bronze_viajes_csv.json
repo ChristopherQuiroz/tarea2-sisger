@@ -1,0 +1,72 @@
+{
+	"name": "bronze_viajes_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "viajes.csv",
+				"folderPath": "datos_csv",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "id_viaje",
+				"type": "String"
+			},
+			{
+				"name": "cod_ruta",
+				"type": "String"
+			},
+			{
+				"name": "nro_bus",
+				"type": "String"
+			},
+			{
+				"name": "fec_servicio",
+				"type": "String"
+			},
+			{
+				"name": "hora_programada",
+				"type": "String"
+			},
+			{
+				"name": "hora_salida",
+				"type": "String"
+			},
+			{
+				"name": "hora_llegada",
+				"type": "String"
+			},
+			{
+				"name": "pasajeros_reportados",
+				"type": "String"
+			},
+			{
+				"name": "km_recorridos",
+				"type": "String"
+			},
+			{
+				"name": "estado_viaje",
+				"type": "String"
+			},
+			{
+				"name": "tipo_metrica",
+				"type": "String"
+			}
+		]
+	}
+}

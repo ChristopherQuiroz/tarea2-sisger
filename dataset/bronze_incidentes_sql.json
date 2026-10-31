@@ -1,0 +1,60 @@
+{
+	"name": "bronze_incidentes_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_rpe_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "IncidenteId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TipoIncidente",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Severidad",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FechaHoraInicio",
+				"type": "datetime2",
+				"scale": 0
+			},
+			{
+				"name": "FechaHoraFin",
+				"type": "datetime2",
+				"scale": 0
+			},
+			{
+				"name": "FechaHoraRegistro",
+				"type": "datetime2",
+				"scale": 0
+			},
+			{
+				"name": "VehiculoId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Descripcion",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "IncidentesAzure"
+		}
+	}
+}

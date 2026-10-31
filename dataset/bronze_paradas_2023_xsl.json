@@ -1,0 +1,58 @@
+{
+	"name": "bronze_paradas_2023_xsl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/xsl"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Paradas",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "operacion_2023.xlsx",
+				"folderPath": "datos_xls",
+				"fileSystem": "raw"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "nro_parada",
+				"type": "String"
+			},
+			{
+				"name": "nombre_parada",
+				"type": "String"
+			},
+			{
+				"name": "zona",
+				"type": "String"
+			},
+			{
+				"name": "latitud",
+				"type": "String"
+			},
+			{
+				"name": "longitud",
+				"type": "String"
+			},
+			{
+				"name": "fecha_desde",
+				"type": "String"
+			},
+			{
+				"name": "fecha_hasta",
+				"type": "String"
+			},
+			{
+				"name": "estado",
+				"type": "String"
+			}
+		]
+	}
+}

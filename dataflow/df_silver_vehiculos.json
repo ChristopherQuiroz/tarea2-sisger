@@ -1,0 +1,99 @@
+{
+	"name": "df_silver_vehiculos",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_vehiculos",
+						"type": "DatasetReference"
+					},
+					"name": "bronce"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_silver_vehiculos_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "limpiar"
+				},
+				{
+					"name": "validos"
+				},
+				{
+					"name": "deduplicar"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AnioFuente as string,",
+				"          VehiculoId as string,",
+				"          Placa as string,",
+				"          TipoVehiculo as string,",
+				"          CapacidadEfectiva as string,",
+				"          VigenciaDesde as string,",
+				"          VigenciaHasta as string,",
+				"          Estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> bronce",
+				"bronce derive(          VehiculoId = iif(isNull(VehiculoId) || trim(VehiculoId) == '', toString(null()), iif(regexMatch(upper(trim(VehiculoId)), '^V-\\\\d{3}$'), upper(trim(VehiculoId)), concat('V-', lpad(replace(upper(trim(VehiculoId)), 'V-', ''), 3, '0')))),",
+				"          Placa = upper(trim(Placa)),",
+				"          TipoVehiculo = upper(trim(TipoVehiculo)),",
+				"          CapacidadEfectiva = toInteger(trim(CapacidadEfectiva)),",
+				"          VigenciaDesde = iif(isNull(VigenciaDesde) || trim(VigenciaDesde) == '', toDate(null()), iif(regexMatch(trim(VigenciaDesde), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaDesde), '(\\\\d+)', 1))), iif(instr(trim(VigenciaDesde), '/') > 0, toDate(left(trim(VigenciaDesde), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaDesde), 10), 'yyyy-MM-dd')))),",
+				"          VigenciaHasta = iif(isNull(VigenciaHasta) || trim(VigenciaHasta) == '', toDate(null()), iif(regexMatch(trim(VigenciaHasta), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaHasta), '(\\\\d+)', 1))), iif(instr(trim(VigenciaHasta), '/') > 0, toDate(left(trim(VigenciaHasta), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaHasta), 10), 'yyyy-MM-dd')))),",
+				"          Estado = upper(trim(Estado))) ~> limpiar",
+				"limpiar filter(not(isNull(VehiculoId)) && regexMatch(VehiculoId, '^V-\\\\d{3}$') && Placa != '' && TipoVehiculo != '' && not(isNull(CapacidadEfectiva)) && not(isNull(VigenciaDesde)) && not(isNull(VigenciaHasta)) && Estado != '') ~> validos",
+				"validos aggregate(groupBy(VehiculoId),",
+				"          Placa = first(Placa),",
+				"          TipoVehiculo = first(TipoVehiculo),",
+				"          CapacidadEfectiva = first(CapacidadEfectiva),",
+				"          VigenciaDesde = first(VigenciaDesde),",
+				"          VigenciaHasta = first(VigenciaHasta),",
+				"          Estado = first(Estado)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          VehiculoId as string,",
+				"          Placa as string,",
+				"          TipoVehiculo as string,",
+				"          CapacidadEfectiva as integer,",
+				"          VigenciaDesde as date,",
+				"          VigenciaHasta as date,",
+				"          Estado as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          VehiculoId = string,",
+				"          Placa = string,",
+				"          TipoVehiculo = string,",
+				"          CapacidadEfectiva = integer,",
+				"          VigenciaDesde = date,",
+				"          VigenciaHasta = date,",
+				"          Estado = string",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

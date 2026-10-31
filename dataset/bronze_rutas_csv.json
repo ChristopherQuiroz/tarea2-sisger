@@ -1,0 +1,56 @@
+{
+	"name": "bronze_rutas_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "rutas.csv",
+				"folderPath": "datos_csv",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "cod_ruta",
+				"type": "String"
+			},
+			{
+				"name": "nombre_ruta",
+				"type": "String"
+			},
+			{
+				"name": "origen",
+				"type": "String"
+			},
+			{
+				"name": "destino",
+				"type": "String"
+			},
+			{
+				"name": "fecha_desde",
+				"type": "String"
+			},
+			{
+				"name": "fecha_hasta",
+				"type": "String"
+			},
+			{
+				"name": "estado",
+				"type": "String"
+			}
+		]
+	}
+}

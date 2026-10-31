@@ -1,0 +1,32 @@
+{
+	"name": "dw_silver_incidente_ruta_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "IncidenteId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EsPrincipal",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "IncidenteRuta"
+		}
+	}
+}

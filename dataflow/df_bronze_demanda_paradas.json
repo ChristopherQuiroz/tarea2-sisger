@@ -1,0 +1,237 @@
+{
+	"name": "df_bronze_demanda_paradas",
+	"properties": {
+		"folder": {
+			"name": "Bronze"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_demanda_paradas_csv",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_demanda_paradas_2022_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls22"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_demanda_paradas_2023_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls23"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_demanda_parada_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_demanda_paradas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "dernorcsv"
+				},
+				{
+					"name": "norcsv"
+				},
+				{
+					"name": "dernorxls22"
+				},
+				{
+					"name": "norxls22"
+				},
+				{
+					"name": "dernorxls23"
+				},
+				{
+					"name": "norxls23"
+				},
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          fec_servicio as string,",
+				"          cod_ruta as string,",
+				"          nro_parada as string,",
+				"          franja as string,",
+				"          abordajes_manuales as string,",
+				"          descensos_manuales as string,",
+				"          demanda_no_atendida as string,",
+				"          medicion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"source(output(",
+				"          fecha_servicio as string,",
+				"          cod_ruta as string,",
+				"          nro_parada as string,",
+				"          franja as string,",
+				"          estimacion_abordajes as string,",
+				"          estimacion_descensos as string,",
+				"          demanda_no_atendida as string,",
+				"          metodo as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls22",
+				"source(output(",
+				"          fecha_servicio as string,",
+				"          cod_ruta as string,",
+				"          nro_parada as string,",
+				"          franja as string,",
+				"          estimacion_abordajes as string,",
+				"          estimacion_descensos as string,",
+				"          demanda_no_atendida as string,",
+				"          metodo as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls23",
+				"source(output(",
+				"          AnioFuente as string,",
+				"          DemandaId as string,",
+				"          FechaServicio as string,",
+				"          RutaHistoricaId as string,",
+				"          ParadaHistoricaId as string,",
+				"          Franja as string,",
+				"          ValidacionesTarjeta as string,",
+				"          Descensos as string,",
+				"          DemandaNoAtendida as string,",
+				"          Metodo as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sql",
+				"csv derive(          AnioFuente = iif(isNull(fec_servicio) || trim(fec_servicio) == '', toString(null()), iif(instr(trim(fec_servicio), '/') > 0, right(trim(fec_servicio), 4), left(trim(fec_servicio), 4))),",
+				"          DemandaId = toString(null()),",
+				"          FechaServicio = fec_servicio,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          ParadaHistoricaId = nro_parada,",
+				"          Franja = franja,",
+				"          ValidacionesTarjeta = abordajes_manuales,",
+				"          Descensos = descensos_manuales,",
+				"          DemandaNoAtendida = demanda_no_atendida,",
+				"          Metodo = medicion) ~> dernorcsv",
+				"dernorcsv select(mapColumn(",
+				"          AnioFuente,",
+				"          DemandaId,",
+				"          FechaServicio,",
+				"          RutaHistoricaId,",
+				"          ParadaHistoricaId,",
+				"          Franja,",
+				"          ValidacionesTarjeta,",
+				"          Descensos,",
+				"          DemandaNoAtendida,",
+				"          Metodo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norcsv",
+				"xls22 derive(          AnioFuente = '2022',",
+				"          DemandaId = toString(null()),",
+				"          FechaServicio = fecha_servicio,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          ParadaHistoricaId = nro_parada,",
+				"          Franja = franja,",
+				"          ValidacionesTarjeta = estimacion_abordajes,",
+				"          Descensos = estimacion_descensos,",
+				"          DemandaNoAtendida = demanda_no_atendida,",
+				"          Metodo = metodo) ~> dernorxls22",
+				"dernorxls22 select(mapColumn(",
+				"          AnioFuente,",
+				"          DemandaId,",
+				"          FechaServicio,",
+				"          RutaHistoricaId,",
+				"          ParadaHistoricaId,",
+				"          Franja,",
+				"          ValidacionesTarjeta,",
+				"          Descensos,",
+				"          DemandaNoAtendida,",
+				"          Metodo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls22",
+				"xls23 derive(          AnioFuente = '2023',",
+				"          DemandaId = toString(null()),",
+				"          FechaServicio = fecha_servicio,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          ParadaHistoricaId = nro_parada,",
+				"          Franja = franja,",
+				"          ValidacionesTarjeta = estimacion_abordajes,",
+				"          Descensos = estimacion_descensos,",
+				"          DemandaNoAtendida = demanda_no_atendida,",
+				"          Metodo = metodo) ~> dernorxls23",
+				"dernorxls23 select(mapColumn(",
+				"          AnioFuente,",
+				"          DemandaId,",
+				"          FechaServicio,",
+				"          RutaHistoricaId,",
+				"          ParadaHistoricaId,",
+				"          Franja,",
+				"          ValidacionesTarjeta,",
+				"          Descensos,",
+				"          DemandaNoAtendida,",
+				"          Metodo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls23",
+				"norcsv, norxls22, norxls23, sql union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AnioFuente as string,",
+				"          DemandaId as string,",
+				"          FechaServicio as string,",
+				"          RutaHistoricaId as string,",
+				"          ParadaHistoricaId as string,",
+				"          Franja as string,",
+				"          ValidacionesTarjeta as string,",
+				"          Descensos as string,",
+				"          DemandaNoAtendida as string,",
+				"          Metodo as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AnioFuente,",
+				"          DemandaId,",
+				"          FechaServicio,",
+				"          RutaHistoricaId,",
+				"          ParadaHistoricaId,",
+				"          Franja,",
+				"          ValidacionesTarjeta,",
+				"          Descensos,",
+				"          DemandaNoAtendida,",
+				"          Metodo",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

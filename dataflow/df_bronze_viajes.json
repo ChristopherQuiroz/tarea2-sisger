@@ -1,0 +1,255 @@
+{
+	"name": "df_bronze_viajes",
+	"properties": {
+		"folder": {
+			"name": "Bronze"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_viajes_csv",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_viajes_2022_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls22"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_viajes_2023_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls23"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_viajes_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_viajes",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "dernorcsv"
+				},
+				{
+					"name": "norcsv"
+				},
+				{
+					"name": "dernorxls22"
+				},
+				{
+					"name": "norxls22"
+				},
+				{
+					"name": "dernorxls23"
+				},
+				{
+					"name": "norxls23"
+				},
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_viaje as string,",
+				"          cod_ruta as string,",
+				"          nro_bus as string,",
+				"          fec_servicio as string,",
+				"          hora_programada as string,",
+				"          hora_salida as string,",
+				"          hora_llegada as string,",
+				"          pasajeros_reportados as string,",
+				"          km_recorridos as string,",
+				"          estado_viaje as string,",
+				"          tipo_metrica as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"source(output(",
+				"          id_viaje as string,",
+				"          cod_ruta as string,",
+				"          nro_bus as string,",
+				"          fecha_servicio as string,",
+				"          hora_programada as string,",
+				"          hora_salida as string,",
+				"          hora_llegada as string,",
+				"          pasajeros_estimados as string,",
+				"          km_recorridos as string,",
+				"          estado_viaje as string,",
+				"          tipo_metrica as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls22",
+				"source(output(",
+				"          id_viaje as string,",
+				"          cod_ruta as string,",
+				"          nro_bus as string,",
+				"          fecha_servicio as string,",
+				"          hora_programada as string,",
+				"          hora_salida as string,",
+				"          hora_llegada as string,",
+				"          pasajeros_estimados as string,",
+				"          km_recorridos as string,",
+				"          estado_viaje as string,",
+				"          tipo_metrica as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls23",
+				"source(output(",
+				"          AnioFuente as string,",
+				"          ViajeId as string,",
+				"          RutaHistoricaId as string,",
+				"          VehiculoId as string,",
+				"          FechaServicio as string,",
+				"          HoraProgramada as string,",
+				"          HoraSalida as string,",
+				"          HoraLlegada as string,",
+				"          ValidacionesTarjeta as string,",
+				"          KmRecorridos as string,",
+				"          EstadoViaje as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sql",
+				"csv derive(          AnioFuente = iif(isNull(fec_servicio) || trim(fec_servicio) == '', toString(null()), iif(instr(trim(fec_servicio), '/') > 0, right(trim(fec_servicio), 4), left(trim(fec_servicio), 4))),",
+				"          ViajeId = id_viaje,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          VehiculoId = nro_bus,",
+				"          FechaServicio = fec_servicio,",
+				"          HoraProgramada = hora_programada,",
+				"          HoraSalida = hora_salida,",
+				"          HoraLlegada = hora_llegada,",
+				"          ValidacionesTarjeta = pasajeros_reportados,",
+				"          KmRecorridos = km_recorridos,",
+				"          EstadoViaje = estado_viaje) ~> dernorcsv",
+				"dernorcsv select(mapColumn(",
+				"          AnioFuente,",
+				"          ViajeId,",
+				"          RutaHistoricaId,",
+				"          VehiculoId,",
+				"          FechaServicio,",
+				"          HoraProgramada,",
+				"          HoraSalida,",
+				"          HoraLlegada,",
+				"          ValidacionesTarjeta,",
+				"          KmRecorridos,",
+				"          EstadoViaje",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norcsv",
+				"xls22 derive(          AnioFuente = '2022',",
+				"          ViajeId = id_viaje,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          VehiculoId = nro_bus,",
+				"          FechaServicio = fecha_servicio,",
+				"          HoraProgramada = hora_programada,",
+				"          HoraSalida = hora_salida,",
+				"          HoraLlegada = hora_llegada,",
+				"          ValidacionesTarjeta = pasajeros_estimados,",
+				"          KmRecorridos = km_recorridos,",
+				"          EstadoViaje = estado_viaje) ~> dernorxls22",
+				"dernorxls22 select(mapColumn(",
+				"          AnioFuente,",
+				"          ViajeId,",
+				"          RutaHistoricaId,",
+				"          VehiculoId,",
+				"          FechaServicio,",
+				"          HoraProgramada,",
+				"          HoraSalida,",
+				"          HoraLlegada,",
+				"          ValidacionesTarjeta,",
+				"          KmRecorridos,",
+				"          EstadoViaje",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls22",
+				"xls23 derive(          AnioFuente = '2023',",
+				"          ViajeId = id_viaje,",
+				"          RutaHistoricaId = cod_ruta,",
+				"          VehiculoId = nro_bus,",
+				"          FechaServicio = fecha_servicio,",
+				"          HoraProgramada = hora_programada,",
+				"          HoraSalida = hora_salida,",
+				"          HoraLlegada = hora_llegada,",
+				"          ValidacionesTarjeta = pasajeros_estimados,",
+				"          KmRecorridos = km_recorridos,",
+				"          EstadoViaje = estado_viaje) ~> dernorxls23",
+				"dernorxls23 select(mapColumn(",
+				"          AnioFuente,",
+				"          ViajeId,",
+				"          RutaHistoricaId,",
+				"          VehiculoId,",
+				"          FechaServicio,",
+				"          HoraProgramada,",
+				"          HoraSalida,",
+				"          HoraLlegada,",
+				"          ValidacionesTarjeta,",
+				"          KmRecorridos,",
+				"          EstadoViaje",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls23",
+				"norcsv, norxls22, norxls23, sql union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AnioFuente as string,",
+				"          ViajeId as string,",
+				"          RutaHistoricaId as string,",
+				"          VehiculoId as string,",
+				"          FechaServicio as string,",
+				"          HoraProgramada as string,",
+				"          HoraSalida as string,",
+				"          HoraLlegada as string,",
+				"          ValidacionesTarjeta as string,",
+				"          KmRecorridos as string,",
+				"          EstadoViaje as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AnioFuente,",
+				"          ViajeId,",
+				"          RutaHistoricaId,",
+				"          VehiculoId,",
+				"          FechaServicio,",
+				"          HoraProgramada,",
+				"          HoraSalida,",
+				"          HoraLlegada,",
+				"          ValidacionesTarjeta,",
+				"          KmRecorridos,",
+				"          EstadoViaje",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

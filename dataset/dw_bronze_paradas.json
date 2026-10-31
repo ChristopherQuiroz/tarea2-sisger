@@ -1,0 +1,60 @@
+{
+	"name": "dw_bronze_paradas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "ParadaHistoricaId",
+				"type": "varchar"
+			},
+			{
+				"name": "CodigoPublicado",
+				"type": "varchar"
+			},
+			{
+				"name": "NombreParada",
+				"type": "varchar"
+			},
+			{
+				"name": "Zona",
+				"type": "varchar"
+			},
+			{
+				"name": "Latitud",
+				"type": "varchar"
+			},
+			{
+				"name": "Longitud",
+				"type": "varchar"
+			},
+			{
+				"name": "VigenciaDesde",
+				"type": "varchar"
+			},
+			{
+				"name": "VigenciaHasta",
+				"type": "varchar"
+			},
+			{
+				"name": "Estado",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Paradas"
+		}
+	}
+}
