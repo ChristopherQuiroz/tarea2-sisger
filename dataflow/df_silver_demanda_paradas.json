@@ -61,8 +61,7 @@
 				"            toDate(left(trim(FechaServicio), 10), 'yyyy-MM-dd')\r",
 				"        )\r",
 				"    )\r",
-				")\r",
-				",",
+				"),",
 				"          RutaHistoricaId = iif(\r",
 				"    isNull(RutaHistoricaId) || trim(RutaHistoricaId) == '',\r",
 				"    toString(null()),\r",
@@ -125,7 +124,18 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          DemandaId,",
+				"          FechaServicio,",
+				"          RutaHistoricaId,",
+				"          ParadaHistoricaId,",
+				"          Franja,",
+				"          ValidacionesTarjeta,",
+				"          Descensos,",
+				"          DemandaNoAtendida,",
+				"          Metodo",
+				"     )) ~> sink1"
 			]
 		}
 	}
