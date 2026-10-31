@@ -1,0 +1,60 @@
+{
+	"name": "bronze_demanda_paradas_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "demanda_paradas.csv",
+				"folderPath": "datos_csv",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "fec_servicio",
+				"type": "String"
+			},
+			{
+				"name": "cod_ruta",
+				"type": "String"
+			},
+			{
+				"name": "nro_parada",
+				"type": "String"
+			},
+			{
+				"name": "franja",
+				"type": "String"
+			},
+			{
+				"name": "abordajes_manuales",
+				"type": "String"
+			},
+			{
+				"name": "descensos_manuales",
+				"type": "String"
+			},
+			{
+				"name": "demanda_no_atendida",
+				"type": "String"
+			},
+			{
+				"name": "medicion",
+				"type": "String"
+			}
+		]
+	}
+}

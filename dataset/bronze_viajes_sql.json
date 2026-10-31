@@ -1,0 +1,71 @@
+{
+	"name": "bronze_viajes_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_rpe_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "ViajeId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "VehiculoId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FechaServicio",
+				"type": "date"
+			},
+			{
+				"name": "HoraProgramada",
+				"type": "time",
+				"scale": 7
+			},
+			{
+				"name": "HoraSalida",
+				"type": "time",
+				"scale": 7
+			},
+			{
+				"name": "HoraLlegada",
+				"type": "time",
+				"scale": 7
+			},
+			{
+				"name": "ValidacionesTarjeta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "KmRecorridos",
+				"type": "decimal",
+				"precision": 8,
+				"scale": 1
+			},
+			{
+				"name": "EstadoViaje",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ViajesAzure"
+		}
+	}
+}

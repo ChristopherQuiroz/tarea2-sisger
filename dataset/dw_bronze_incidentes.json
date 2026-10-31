@@ -1,0 +1,56 @@
+{
+	"name": "dw_bronze_incidentes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "IncidenteId",
+				"type": "varchar"
+			},
+			{
+				"name": "TipoIncidente",
+				"type": "varchar"
+			},
+			{
+				"name": "Severidad",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaHoraInicio",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaHoraFin",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaHoraRegistro",
+				"type": "varchar"
+			},
+			{
+				"name": "VehiculoId",
+				"type": "varchar"
+			},
+			{
+				"name": "Descripcion",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Incidentes"
+		}
+	}
+}

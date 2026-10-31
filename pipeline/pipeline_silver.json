@@ -1,0 +1,258 @@
+{
+	"name": "pipeline_silver",
+	"properties": {
+		"activities": [
+			{
+				"name": "AuditarBronzeYLimpiarSilver",
+				"description": "Audita bronze y vacia silver.* respetando las FK antes de recargar.",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "sql_dw_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "-- Auditoria de calidad de bronze (visible en la salida de la actividad).\n-- Los residuos que aqui aparezcan son filas que silver filtrara por diseño.\nSELECT 'Rutas' AS Tabla, COUNT(*) AS Filas,\n       SUM(CASE WHEN NULLIF(LTRIM(RTRIM(RutaHistoricaId)), '') IS NULL THEN 1 ELSE 0 END) AS SinId\nFROM bronze.Rutas\nUNION ALL\nSELECT 'Paradas', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(ParadaHistoricaId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.Paradas\nUNION ALL\nSELECT 'Vehiculos', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(VehiculoId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.Vehiculos\nUNION ALL\nSELECT 'Viajes', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(ViajeId)), '') IS NULL\n                                  OR NULLIF(LTRIM(RTRIM(RutaHistoricaId)), '') IS NULL\n                                  OR NULLIF(LTRIM(RTRIM(VehiculoId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.Viajes\nUNION ALL\nSELECT 'DemandaParadas', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(DemandaId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.DemandaParadas\nUNION ALL\nSELECT 'Incidentes', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(IncidenteId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.Incidentes\nUNION ALL\nSELECT 'IncidenteRuta', COUNT(*), SUM(CASE WHEN NULLIF(LTRIM(RTRIM(IncidenteId)), '') IS NULL\n                                        OR NULLIF(LTRIM(RTRIM(RutaHistoricaId)), '') IS NULL THEN 1 ELSE 0 END) FROM bronze.IncidenteRuta;"
+						},
+						{
+							"type": "Query",
+							"text": "-- Limpieza de silver en orden de dependencias (hijos primero) para recarga idempotente.\nDELETE FROM silver.IncidenteRuta;\nDELETE FROM silver.DemandaParadas;\nDELETE FROM silver.Viajes;\nDELETE FROM silver.Incidentes;\nDELETE FROM silver.Vehiculos;\nDELETE FROM silver.Paradas;\nDELETE FROM silver.Rutas;"
+						}
+					]
+				}
+			},
+			{
+				"name": "SL_01_Rutas",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "AuditarBronzeYLimpiarSilver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_rutas",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_02_Paradas",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_01_Rutas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_paradas",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_03_Vehiculos",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_02_Paradas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_vehiculos",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_04_Incidentes",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_03_Vehiculos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_incidentes",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_05_Viajes",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_04_Incidentes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_viajes",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_06_DemandaParadas",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_05_Viajes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_demanda_paradas",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SL_07_IncidenteRuta",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SL_06_DemandaParadas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_silver_incidente_ruta",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"folder": {
+			"name": "Silver"
+		}
+	}
+}

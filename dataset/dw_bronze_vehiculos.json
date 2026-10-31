@@ -1,0 +1,52 @@
+{
+	"name": "dw_bronze_vehiculos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "VehiculoId",
+				"type": "varchar"
+			},
+			{
+				"name": "Placa",
+				"type": "varchar"
+			},
+			{
+				"name": "TipoVehiculo",
+				"type": "varchar"
+			},
+			{
+				"name": "CapacidadEfectiva",
+				"type": "varchar"
+			},
+			{
+				"name": "VigenciaDesde",
+				"type": "varchar"
+			},
+			{
+				"name": "VigenciaHasta",
+				"type": "varchar"
+			},
+			{
+				"name": "Estado",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Vehiculos"
+		}
+	}
+}

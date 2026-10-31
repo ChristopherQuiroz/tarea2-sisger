@@ -1,0 +1,34 @@
+{
+	"name": "bronze_notas_fuente_2022_xsl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/xsl"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Notas_fuente",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "operacion_2022.xlsx",
+				"folderPath": "datos_xls",
+				"fileSystem": "raw"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "elemento",
+				"type": "String"
+			},
+			{
+				"name": "detalle",
+				"type": "String"
+			}
+		]
+	}
+}

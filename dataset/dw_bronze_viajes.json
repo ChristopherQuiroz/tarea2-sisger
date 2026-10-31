@@ -1,0 +1,64 @@
+{
+	"name": "dw_bronze_viajes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "ViajeId",
+				"type": "varchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "varchar"
+			},
+			{
+				"name": "VehiculoId",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaServicio",
+				"type": "varchar"
+			},
+			{
+				"name": "HoraProgramada",
+				"type": "varchar"
+			},
+			{
+				"name": "HoraSalida",
+				"type": "varchar"
+			},
+			{
+				"name": "HoraLlegada",
+				"type": "varchar"
+			},
+			{
+				"name": "ValidacionesTarjeta",
+				"type": "varchar"
+			},
+			{
+				"name": "KmRecorridos",
+				"type": "varchar"
+			},
+			{
+				"name": "EstadoViaje",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Viajes"
+		}
+	}
+}

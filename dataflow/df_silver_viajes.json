@@ -1,0 +1,101 @@
+{
+	"name": "df_silver_viajes",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_viajes",
+						"type": "DatasetReference"
+					},
+					"name": "bronce"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_silver_viajes_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "limpiar"
+				},
+				{
+					"name": "validos"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AnioFuente as string,",
+				"          ViajeId as string,",
+				"          RutaHistoricaId as string,",
+				"          VehiculoId as string,",
+				"          FechaServicio as string,",
+				"          HoraProgramada as string,",
+				"          HoraSalida as string,",
+				"          HoraLlegada as string,",
+				"          ValidacionesTarjeta as string,",
+				"          KmRecorridos as string,",
+				"          EstadoViaje as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> bronce",
+				"bronce derive(          ViajeId = iif(regexMatch(upper(trim(ViajeId)), '^VJ-\\\\d{4}-'), upper(trim(ViajeId)), concat('VJ-', trim(AnioFuente), '-', lpad(trim(ViajeId), 5, '0'))),",
+				"          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
+				"          VehiculoId = upper(trim(VehiculoId)),",
+				"          FechaServicio = iif(isNull(FechaServicio) || trim(FechaServicio) == '', toDate(null()), iif(regexMatch(trim(FechaServicio), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(FechaServicio), '(\\\\d+)', 1))), iif(instr(trim(FechaServicio), '/') > 0, toDate(left(trim(FechaServicio), 10), 'dd/MM/yyyy'), toDate(left(trim(FechaServicio), 10), 'yyyy-MM-dd')))),",
+				"          HoraProgramada = iif(isNull(HoraProgramada) || regexExtract(toString(HoraProgramada), '(\\\\d{2}:\\\\d{2})', 1) == '', toString(null()), concat(regexExtract(toString(HoraProgramada), '(\\\\d{2}:\\\\d{2})', 1), ':00')),",
+				"          HoraSalida = iif(isNull(HoraSalida) || regexExtract(toString(HoraSalida), '(\\\\d{2}:\\\\d{2})', 1) == '', toString(null()), concat(regexExtract(toString(HoraSalida), '(\\\\d{2}:\\\\d{2})', 1), ':00')),",
+				"          HoraLlegada = iif(isNull(HoraLlegada) || regexExtract(toString(HoraLlegada), '(\\\\d{2}:\\\\d{2})', 1) == '', toString(null()), concat(regexExtract(toString(HoraLlegada), '(\\\\d{2}:\\\\d{2})', 1), ':00')),",
+				"          ValidacionesTarjeta = toInteger(trim(ValidacionesTarjeta)),",
+				"          KmRecorridos = toDecimal(replace(trim(KmRecorridos), ',', '.'), 8, 1),",
+				"          EstadoViaje = upper(trim(EstadoViaje))) ~> limpiar",
+				"limpiar filter(regexMatch(ViajeId, '^VJ-\\\\d{4}-\\\\d{5}$') && regexMatch(RutaHistoricaId, '^RH-') && regexMatch(VehiculoId, '^V-\\\\d{3}$') && not(isNull(FechaServicio)) && not(isNull(HoraProgramada)) && not(isNull(HoraSalida)) && not(isNull(HoraLlegada)) && not(isNull(ValidacionesTarjeta)) && not(isNull(KmRecorridos)) && EstadoViaje != '') ~> validos",
+				"validos sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ViajeId as string,",
+				"          RutaHistoricaId as string,",
+				"          VehiculoId as string,",
+				"          FechaServicio as date,",
+				"          HoraProgramada as string,",
+				"          HoraSalida as string,",
+				"          HoraLlegada as string,",
+				"          ValidacionesTarjeta as integer,",
+				"          KmRecorridos as decimal(8,1),",
+				"          EstadoViaje as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ViajeId = string,",
+				"          RutaHistoricaId = string,",
+				"          VehiculoId = string,",
+				"          FechaServicio = date,",
+				"          HoraProgramada = string,",
+				"          HoraSalida = string,",
+				"          HoraLlegada = string,",
+				"          ValidacionesTarjeta = integer,",
+				"          KmRecorridos = decimal(8,1),",
+				"          EstadoViaje = string",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

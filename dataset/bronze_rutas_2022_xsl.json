@@ -1,0 +1,54 @@
+{
+	"name": "bronze_rutas_2022_xsl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/xsl"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Rutas",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "operacion_2022.xlsx",
+				"folderPath": "datos_xls",
+				"fileSystem": "raw"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "cod_ruta",
+				"type": "String"
+			},
+			{
+				"name": "nombre_ruta",
+				"type": "String"
+			},
+			{
+				"name": "origen",
+				"type": "String"
+			},
+			{
+				"name": "destino",
+				"type": "String"
+			},
+			{
+				"name": "fecha_desde",
+				"type": "String"
+			},
+			{
+				"name": "fecha_hasta",
+				"type": "String"
+			},
+			{
+				"name": "estado",
+				"type": "String"
+			}
+		]
+	}
+}

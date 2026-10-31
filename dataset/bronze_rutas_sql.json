@@ -1,0 +1,57 @@
+{
+	"name": "bronze_rutas_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_rpe_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CodigoRuta",
+				"type": "nvarchar"
+			},
+			{
+				"name": "NombreRuta",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Origen",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Destino",
+				"type": "nvarchar"
+			},
+			{
+				"name": "VigenciaDesde",
+				"type": "date"
+			},
+			{
+				"name": "VigenciaHasta",
+				"type": "date"
+			},
+			{
+				"name": "Estado",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "RutasAzure"
+		}
+	}
+}

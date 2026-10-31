@@ -1,0 +1,60 @@
+{
+	"name": "dw_bronze_demanda_paradas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AnioFuente",
+				"type": "varchar"
+			},
+			{
+				"name": "DemandaId",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaServicio",
+				"type": "varchar"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "varchar"
+			},
+			{
+				"name": "ParadaHistoricaId",
+				"type": "varchar"
+			},
+			{
+				"name": "Franja",
+				"type": "varchar"
+			},
+			{
+				"name": "ValidacionesTarjeta",
+				"type": "varchar"
+			},
+			{
+				"name": "Descensos",
+				"type": "varchar"
+			},
+			{
+				"name": "DemandaNoAtendida",
+				"type": "varchar"
+			},
+			{
+				"name": "Metodo",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "DemandaParadas"
+		}
+	}
+}

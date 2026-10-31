@@ -1,0 +1,70 @@
+{
+	"name": "bronze_incidentes_2022_xsl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sa_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bronze/xsl"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Incidentes",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "operacion_2022.xlsx",
+				"folderPath": "datos_xls",
+				"fileSystem": "raw"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "id_incidente",
+				"type": "String"
+			},
+			{
+				"name": "tipo",
+				"type": "String"
+			},
+			{
+				"name": "severidad",
+				"type": "String"
+			},
+			{
+				"name": "fecha_inicio",
+				"type": "String"
+			},
+			{
+				"name": "hora_inicio",
+				"type": "String"
+			},
+			{
+				"name": "fecha_fin",
+				"type": "String"
+			},
+			{
+				"name": "hora_fin",
+				"type": "String"
+			},
+			{
+				"name": "fecha_registro",
+				"type": "String"
+			},
+			{
+				"name": "rutas_afectadas",
+				"type": "String"
+			},
+			{
+				"name": "vehiculo_afectado",
+				"type": "String"
+			},
+			{
+				"name": "descripcion",
+				"type": "String"
+			}
+		]
+	}
+}

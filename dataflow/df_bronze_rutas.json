@@ -1,0 +1,225 @@
+{
+	"name": "df_bronze_rutas",
+	"properties": {
+		"folder": {
+			"name": "Bronze"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_rutas_csv",
+						"type": "DatasetReference"
+					},
+					"name": "csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_rutas_2022_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls22"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_rutas_2023_xsl",
+						"type": "DatasetReference"
+					},
+					"name": "xls23"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_rutas_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dw_bronze_rutas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "dernorcsv"
+				},
+				{
+					"name": "norcsv"
+				},
+				{
+					"name": "dernorxls22"
+				},
+				{
+					"name": "norxls22"
+				},
+				{
+					"name": "dernorxls23"
+				},
+				{
+					"name": "norxls23"
+				},
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          cod_ruta as string,",
+				"          nombre_ruta as string,",
+				"          origen as string,",
+				"          destino as string,",
+				"          fecha_desde as string,",
+				"          fecha_hasta as string,",
+				"          estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csv",
+				"source(output(",
+				"          cod_ruta as string,",
+				"          nombre_ruta as string,",
+				"          origen as string,",
+				"          destino as string,",
+				"          fecha_desde as string,",
+				"          fecha_hasta as string,",
+				"          estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls22",
+				"source(output(",
+				"          cod_ruta as string,",
+				"          nombre_ruta as string,",
+				"          origen as string,",
+				"          destino as string,",
+				"          fecha_desde as string,",
+				"          fecha_hasta as string,",
+				"          estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> xls23",
+				"source(output(",
+				"          AnioFuente as string,",
+				"          RutaHistoricaId as string,",
+				"          CodigoRuta as string,",
+				"          NombreRuta as string,",
+				"          Origen as string,",
+				"          Destino as string,",
+				"          VigenciaDesde as string,",
+				"          VigenciaHasta as string,",
+				"          Estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sql",
+				"csv derive(          AnioFuente = '2020',",
+				"          RutaHistoricaId = iif(isNull(cod_ruta) || trim(cod_ruta) == '', toString(null()), iif(upper(trim(cod_ruta)) == 'R12-N', 'RH-12-N', iif(upper(trim(cod_ruta)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))))))),",
+				"          CodigoRuta = trim(cod_ruta),",
+				"          NombreRuta = trim(nombre_ruta),",
+				"          Origen = trim(origen),",
+				"          Destino = trim(destino),",
+				"          VigenciaDesde = trim(fecha_desde),",
+				"          VigenciaHasta = trim(fecha_hasta),",
+				"          Estado = trim(estado)) ~> dernorcsv",
+				"dernorcsv select(mapColumn(",
+				"          AnioFuente,",
+				"          RutaHistoricaId,",
+				"          CodigoRuta,",
+				"          NombreRuta,",
+				"          Origen,",
+				"          Destino,",
+				"          VigenciaDesde,",
+				"          VigenciaHasta,",
+				"          Estado",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norcsv",
+				"xls22 derive(          AnioFuente = '2022',",
+				"          RutaHistoricaId = iif(isNull(cod_ruta) || trim(cod_ruta) == '', toString(null()), iif(upper(trim(cod_ruta)) == 'R12-N', 'RH-12-N', iif(upper(trim(cod_ruta)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))))))),",
+				"          CodigoRuta = trim(cod_ruta),",
+				"          NombreRuta = trim(nombre_ruta),",
+				"          Origen = trim(origen),",
+				"          Destino = trim(destino),",
+				"          VigenciaDesde = trim(fecha_desde),",
+				"          VigenciaHasta = trim(fecha_hasta),",
+				"          Estado = trim(estado)) ~> dernorxls22",
+				"dernorxls22 select(mapColumn(",
+				"          AnioFuente,",
+				"          RutaHistoricaId,",
+				"          CodigoRuta,",
+				"          NombreRuta,",
+				"          Origen,",
+				"          Destino,",
+				"          VigenciaDesde,",
+				"          VigenciaHasta,",
+				"          Estado",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls22",
+				"xls23 derive(          AnioFuente = '2023',",
+				"          RutaHistoricaId = iif(isNull(cod_ruta) || trim(cod_ruta) == '', toString(null()), iif(upper(trim(cod_ruta)) == 'R12-N', 'RH-12-N', iif(upper(trim(cod_ruta)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(cod_ruta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))))))),",
+				"          CodigoRuta = trim(cod_ruta),",
+				"          NombreRuta = trim(nombre_ruta),",
+				"          Origen = trim(origen),",
+				"          Destino = trim(destino),",
+				"          VigenciaDesde = trim(fecha_desde),",
+				"          VigenciaHasta = trim(fecha_hasta),",
+				"          Estado = trim(estado)) ~> dernorxls23",
+				"dernorxls23 select(mapColumn(",
+				"          AnioFuente,",
+				"          RutaHistoricaId,",
+				"          CodigoRuta,",
+				"          NombreRuta,",
+				"          Origen,",
+				"          Destino,",
+				"          VigenciaDesde,",
+				"          VigenciaHasta,",
+				"          Estado",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> norxls23",
+				"norcsv, norxls22, norxls23, sql union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AnioFuente as string,",
+				"          RutaHistoricaId as string,",
+				"          CodigoRuta as string,",
+				"          NombreRuta as string,",
+				"          Origen as string,",
+				"          Destino as string,",
+				"          VigenciaDesde as string,",
+				"          VigenciaHasta as string,",
+				"          Estado as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          AnioFuente,",
+				"          RutaHistoricaId,",
+				"          CodigoRuta,",
+				"          NombreRuta,",
+				"          Origen,",
+				"          Destino,",
+				"          VigenciaDesde,",
+				"          VigenciaHasta,",
+				"          Estado",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

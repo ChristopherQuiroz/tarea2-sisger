@@ -1,0 +1,59 @@
+{
+	"name": "dw_silver_demanda_paradas_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sql_dw_transporte",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "DemandaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FechaServicio",
+				"type": "date"
+			},
+			{
+				"name": "RutaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ParadaHistoricaId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Franja",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ValidacionesTarjeta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Descensos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DemandaNoAtendida",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Metodo",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "DemandaParadas"
+		}
+	}
+}
