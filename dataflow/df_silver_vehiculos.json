@@ -50,7 +50,7 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> bronce",
-				"bronce derive(          VehiculoId = upper(trim(VehiculoId)),",
+				"bronce derive(          VehiculoId = iif(isNull(VehiculoId) || trim(VehiculoId) == '', toString(null()), iif(regexMatch(upper(trim(VehiculoId)), '^V-\\\\d{3}$'), upper(trim(VehiculoId)), concat('V-', lpad(replace(upper(trim(VehiculoId)), 'V-', ''), 3, '0')))),",
 				"          Placa = upper(trim(Placa)),",
 				"          TipoVehiculo = upper(trim(TipoVehiculo)),",
 				"          CapacidadEfectiva = toInteger(trim(CapacidadEfectiva)),",

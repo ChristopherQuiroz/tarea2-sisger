@@ -50,43 +50,16 @@
 					"name": "dercsv"
 				},
 				{
-					"name": "flacsv"
-				},
-				{
-					"name": "espcsv"
-				},
-				{
-					"name": "norcsvf"
-				},
-				{
 					"name": "norcsv"
 				},
 				{
-					"name": "dernorxls22"
-				},
-				{
-					"name": "flanorxls22"
-				},
-				{
-					"name": "espnorxls22"
-				},
-				{
-					"name": "norxls22f"
+					"name": "derxls22"
 				},
 				{
 					"name": "norxls22"
 				},
 				{
-					"name": "dernorxls23"
-				},
-				{
-					"name": "flanorxls23"
-				},
-				{
-					"name": "espnorxls23"
-				},
-				{
-					"name": "norxls23f"
+					"name": "derxls23"
 				},
 				{
 					"name": "norxls23"
@@ -154,14 +127,11 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> sql",
-				"csv derive(          AnioFuente = regexExtract(trim(id_incidente), 'IN-(\\\\d{4})', 1),",
-				"          IncidenteId = upper(trim(id_incidente)),",
-				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> dernorcsv",
-				"dernorcsv flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flanorcsv",
-				"flanorcsv derive(          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
-				"          EsPrincipal = iif(upper(trim(RutaHistoricaId)) == upper(trim(split(rutas_afectadas, '\\\\|')[1])), '1', '0')) ~> espnorcsv",
-				"espnorcsv filter(not(isNull(RutaHistoricaId)) && RutaHistoricaId != '') ~> norcsvf",
-				"norcsvf select(mapColumn(",
+				"csv derive(          AnioFuente = regexExtract(id_incidente, 'IN-(\\\\d{4})', 1),",
+				"          IncidenteId = id_incidente,",
+				"          RutaHistoricaId = rutas_afectadas,",
+				"          EsPrincipal = toString(null())) ~> dercsv",
+				"dercsv select(mapColumn(",
 				"          AnioFuente,",
 				"          IncidenteId,",
 				"          RutaHistoricaId,",
@@ -170,13 +140,10 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> norcsv",
 				"xls22 derive(          AnioFuente = '2022',",
-				"          IncidenteId = upper(trim(id_incidente)),",
-				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> dernorxls22",
-				"dernorxls22 flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flanorxls22",
-				"flanorxls22 derive(          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
-				"          EsPrincipal = iif(upper(trim(RutaHistoricaId)) == upper(trim(split(rutas_afectadas, '\\\\|')[1])), '1', '0')) ~> espnorxls22",
-				"espnorxls22 filter(not(isNull(RutaHistoricaId)) && RutaHistoricaId != '') ~> norxls22f",
-				"norxls22f select(mapColumn(",
+				"          IncidenteId = id_incidente,",
+				"          RutaHistoricaId = rutas_afectadas,",
+				"          EsPrincipal = toString(null())) ~> derxls22",
+				"derxls22 select(mapColumn(",
 				"          AnioFuente,",
 				"          IncidenteId,",
 				"          RutaHistoricaId,",
@@ -185,13 +152,10 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> norxls22",
 				"xls23 derive(          AnioFuente = '2023',",
-				"          IncidenteId = upper(trim(id_incidente)),",
-				"          ListaRutas = split(rutas_afectadas, '\\\\|')) ~> dernorxls23",
-				"dernorxls23 flatten(unroll(ListaRutas as RutaHistoricaId), cross: false) ~> flanorxls23",
-				"flanorxls23 derive(          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
-				"          EsPrincipal = iif(upper(trim(RutaHistoricaId)) == upper(trim(split(rutas_afectadas, '\\\\|')[1])), '1', '0')) ~> espnorxls23",
-				"espnorxls23 filter(not(isNull(RutaHistoricaId)) && RutaHistoricaId != '') ~> norxls23f",
-				"norxls23f select(mapColumn(",
+				"          IncidenteId = id_incidente,",
+				"          RutaHistoricaId = rutas_afectadas,",
+				"          EsPrincipal = toString(null())) ~> derxls23",
+				"derxls23 select(mapColumn(",
 				"          AnioFuente,",
 				"          IncidenteId,",
 				"          RutaHistoricaId,",

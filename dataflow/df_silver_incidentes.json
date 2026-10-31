@@ -26,6 +26,9 @@
 			],
 			"transformations": [
 				{
+					"name": "partir"
+				},
+				{
 					"name": "limpiar"
 				},
 				{
@@ -51,13 +54,19 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> bronce",
-				"bronce derive(          IncidenteId = upper(trim(IncidenteId)),",
+				"bronce derive(          FIniF = iif(isNull(FechaHoraInicio), '', regexExtract(trim(FechaHoraInicio), '^([^ ]+)', 1)),",
+				"          FIniH = iif(isNull(FechaHoraInicio), '', regexExtract(trim(FechaHoraInicio), '(\\\\d{2}:\\\\d{2})', 1)),",
+				"          FFinF = iif(isNull(FechaHoraFin), '', regexExtract(trim(FechaHoraFin), '^([^ ]+)', 1)),",
+				"          FFinH = iif(isNull(FechaHoraFin), '', regexExtract(trim(FechaHoraFin), '(\\\\d{2}:\\\\d{2})', 1)),",
+				"          FRegF = iif(isNull(FechaHoraRegistro), '', regexExtract(trim(FechaHoraRegistro), '^([^ ]+)', 1)),",
+				"          FRegH = iif(isNull(FechaHoraRegistro), '', regexExtract(trim(FechaHoraRegistro), '(\\\\d{2}:\\\\d{2})', 1))) ~> partir",
+				"partir derive(          IncidenteId = upper(trim(IncidenteId)),",
 				"          TipoIncidente = upper(trim(TipoIncidente)),",
 				"          Severidad = upper(trim(Severidad)),",
-				"          FechaHoraInicio = iif(isNull(FechaHoraInicio) || trim(FechaHoraInicio) == '', toTimestamp(null()), iif(instr(trim(FechaHoraInicio), '/') > 0, toTimestamp(trim(FechaHoraInicio), 'dd/MM/yyyy HH:mm:ss'), toTimestamp(replace(left(trim(FechaHoraInicio), 19), 'T', ' '), 'yyyy-MM-dd HH:mm:ss'))),",
-				"          FechaHoraFin = iif(isNull(FechaHoraFin) || trim(FechaHoraFin) == '', toTimestamp(null()), iif(instr(trim(FechaHoraFin), '/') > 0, toTimestamp(trim(FechaHoraFin), 'dd/MM/yyyy HH:mm:ss'), toTimestamp(replace(left(trim(FechaHoraFin), 19), 'T', ' '), 'yyyy-MM-dd HH:mm:ss'))),",
-				"          FechaHoraRegistro = iif(isNull(FechaHoraRegistro) || trim(FechaHoraRegistro) == '', toTimestamp(null()), iif(instr(trim(FechaHoraRegistro), '/') > 0, toTimestamp(trim(FechaHoraRegistro), 'dd/MM/yyyy HH:mm:ss'), toTimestamp(replace(left(trim(FechaHoraRegistro), 19), 'T', ' '), 'yyyy-MM-dd HH:mm:ss'))),",
-				"          VehiculoId = iif(isNull(VehiculoId) || trim(VehiculoId) == '', toString(null()), upper(trim(VehiculoId))),",
+				"          FechaHoraInicio = iif(isNull(FIniF) || FIniF == '', toTimestamp(null()), toTimestamp(concat(toString(iif(regexMatch(FIniF, '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(FIniF, '(\\\\d+)', 1))), iif(instr(FIniF, '/') > 0, toDate(FIniF, 'dd/MM/yyyy'), toDate(FIniF, 'yyyy-MM-dd'))), 'yyyy-MM-dd'), ' ', iif(FIniH == '', '00:00', FIniH), ':00'), 'yyyy-MM-dd HH:mm:ss')),",
+				"          FechaHoraFin = iif(isNull(FFinF) || FFinF == '', toTimestamp(null()), toTimestamp(concat(toString(iif(regexMatch(FFinF, '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(FFinF, '(\\\\d+)', 1))), iif(instr(FFinF, '/') > 0, toDate(FFinF, 'dd/MM/yyyy'), toDate(FFinF, 'yyyy-MM-dd'))), 'yyyy-MM-dd'), ' ', iif(FFinH == '', '00:00', FFinH), ':00'), 'yyyy-MM-dd HH:mm:ss')),",
+				"          FechaHoraRegistro = iif(isNull(FRegF) || FRegF == '', toTimestamp(null()), toTimestamp(concat(toString(iif(regexMatch(FRegF, '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(FRegF, '(\\\\d+)', 1))), iif(instr(FRegF, '/') > 0, toDate(FRegF, 'dd/MM/yyyy'), toDate(FRegF, 'yyyy-MM-dd'))), 'yyyy-MM-dd'), ' ', iif(FRegH == '', '00:00', FRegH), ':00'), 'yyyy-MM-dd HH:mm:ss')),",
+				"          VehiculoId = iif(isNull(VehiculoId) || trim(VehiculoId) == '', toString(null()), iif(regexMatch(upper(trim(VehiculoId)), '^V-\\\\d{3}$'), upper(trim(VehiculoId)), concat('V-', lpad(replace(upper(trim(VehiculoId)), 'V-', ''), 3, '0')))),",
 				"          Descripcion = trim(Descripcion)) ~> limpiar",
 				"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$') && TipoIncidente != '' && Severidad != '' && not(isNull(FechaHoraInicio)) && not(isNull(FechaHoraFin)) && not(isNull(FechaHoraRegistro)) && Descripcion != '') ~> validos",
 				"validos aggregate(groupBy(IncidenteId),",

@@ -26,6 +26,12 @@
 			],
 			"transformations": [
 				{
+					"name": "prepararLista"
+				},
+				{
+					"name": "expandirRutas"
+				},
+				{
 					"name": "limpiar"
 				},
 				{
@@ -46,10 +52,12 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> bronce",
-				"bronce derive(          IncidenteId = upper(trim(IncidenteId)),",
-				"          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
-				"          EsPrincipal = iif(trim(EsPrincipal) == '1' || lower(trim(EsPrincipal)) == 'true', true(), false())) ~> limpiar",
-				"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$') && regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
+				"bronce derive(ListaRutas = split(RutaHistoricaId, '\\\\|')) ~> prepararLista",
+				"prepararLista flatten(unroll(ListaRutas as RutaExpandida), cross: false) ~> expandirRutas",
+				"expandirRutas derive(IncidenteId = upper(trim(IncidenteId)),",
+				"          RutaHistoricaId = iif(isNull(RutaExpandida) || trim(RutaExpandida) == '', toString(null()), iif(regexMatch(upper(trim(RutaExpandida)), '^RH-'), upper(trim(RutaExpandida)), iif(upper(trim(RutaExpandida)) == 'R12-N', 'RH-12-N', iif(upper(trim(RutaExpandida)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(RutaExpandida)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(RutaExpandida)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(RutaExpandida)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0')))))))),",
+				"          EsPrincipal = iif(isNull(EsPrincipal) || trim(EsPrincipal) == '', iif(trim(RutaExpandida) == trim(split(RutaHistoricaId, '\\\\|')[1]), true(), false()), iif(trim(EsPrincipal) == '1' || lower(trim(EsPrincipal)) == 'true', true(), false()))) ~> limpiar",
+				"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$') && not(isNull(RutaHistoricaId)) && regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
 				"validos aggregate(groupBy(IncidenteId, RutaHistoricaId),",
 				"          EsPrincipal = first(EsPrincipal)) ~> deduplicar",
 				"deduplicar sink(allowSchemaDrift: true,",

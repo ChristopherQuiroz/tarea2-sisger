@@ -51,7 +51,7 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> bronce",
-				"bronce derive(          RutaHistoricaId = upper(trim(RutaHistoricaId)),",
+				"bronce derive(          RutaHistoricaId = iif(isNull(RutaHistoricaId) || trim(RutaHistoricaId) == '', toString(null()), iif(regexMatch(upper(trim(RutaHistoricaId)), '^RH-'), upper(trim(RutaHistoricaId)), iif(upper(trim(RutaHistoricaId)) == 'R12-N', 'RH-12-N', iif(upper(trim(RutaHistoricaId)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0')))))))),",
 				"          CodigoRuta = iif(upper(trim(CodigoRuta)) == 'R12-N' || upper(trim(CodigoRuta)) == 'R12-S', upper(trim(CodigoRuta)), concat('R-', lpad(replace(replace(replace(upper(trim(CodigoRuta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))),",
 				"          NombreRuta = trim(NombreRuta),",
 				"          Origen = trim(Origen),",
