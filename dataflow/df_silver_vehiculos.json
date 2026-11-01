@@ -30,6 +30,9 @@
 				},
 				{
 					"name": "validos"
+				},
+				{
+					"name": "deduplicar"
 				}
 			],
 			"scriptLines": [
@@ -62,7 +65,14 @@
 				"&& !isNull(VigenciaDesde)",
 				"&& !isNull(VigenciaHasta)",
 				"&& Estado != '') ~> validos",
-				"validos sink(allowSchemaDrift: true,",
+				"validos aggregate(groupBy(VehiculoId),",
+				"     Placa = first(Placa),",
+				"          TipoVehiculo = first(TipoVehiculo),",
+				"          CapacidadEfectiva = first(CapacidadEfectiva),",
+				"          VigenciaDesde = first(VigenciaDesde),",
+				"          VigenciaHasta = first(VigenciaHasta),",
+				"          Estado = first(Estado)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          VehiculoId as string,",
