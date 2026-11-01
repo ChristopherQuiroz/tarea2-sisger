@@ -38,7 +38,7 @@
 					"name": "validos"
 				},
 				{
-					"name": "aggregate1"
+					"name": "deduplicar"
 				}
 			],
 			"scriptLines": [
@@ -95,8 +95,8 @@
 				"&& regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
 				"validos aggregate(groupBy(IncidenteId,",
 				"          RutaHistoricaId),",
-				"     EsPrincipal = first(EsPrincipal)) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"     EsPrincipal = first(EsPrincipal)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          IncidenteId as string,",

@@ -33,6 +33,9 @@
 				},
 				{
 					"name": "filtrar"
+				},
+				{
+					"name": "deduplicar"
 				}
 			],
 			"scriptLines": [
@@ -72,7 +75,15 @@
 				"&& !isNull(FechaHoraFin)",
 				"&& !isNull(FechaHoraRegistro)",
 				"&& Descripcion != '') ~> filtrar",
-				"filtrar sink(allowSchemaDrift: true,",
+				"filtrar aggregate(groupBy(IncidenteId),",
+				"     TipoIncidente = first(TipoIncidente),",
+				"          Severidad = first(Severidad),",
+				"          FechaHoraInicio = first(FechaHoraInicio),",
+				"          FechaHoraFin = first(FechaHoraFin),",
+				"          FechaHoraRegistro = first(FechaHoraRegistro),",
+				"          VehiculoId = first(VehiculoId),",
+				"          Descripcion = first(Descripcion)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          IncidenteId as string,",
