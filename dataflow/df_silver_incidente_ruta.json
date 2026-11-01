@@ -36,6 +36,9 @@
 				},
 				{
 					"name": "validos"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -90,7 +93,10 @@
 				"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$')",
 				"&& !isNull(RutaHistoricaId)",
 				"&& regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
-				"validos sink(allowSchemaDrift: true,",
+				"validos aggregate(groupBy(IncidenteId,",
+				"          RutaHistoricaId),",
+				"     EsPrincipal = first(EsPrincipal)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          IncidenteId as string,",
