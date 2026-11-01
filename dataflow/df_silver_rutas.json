@@ -29,10 +29,7 @@
 					"name": "limpiar"
 				},
 				{
-					"name": "validos"
-				},
-				{
-					"name": "deduplicar"
+					"name": "filtrar"
 				}
 			],
 			"scriptLines": [
@@ -51,24 +48,22 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> bronce",
-				"bronce derive(          RutaHistoricaId = iif(isNull(RutaHistoricaId) || trim(RutaHistoricaId) == '', toString(null()), iif(regexMatch(upper(trim(RutaHistoricaId)), '^RH-'), upper(trim(RutaHistoricaId)), iif(upper(trim(RutaHistoricaId)) == 'R12-N', 'RH-12-N', iif(upper(trim(RutaHistoricaId)) == 'R12-S', 'RH-12-S', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07', 'RH-07-OLD', iif(lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12', 'RH-12-OLD', concat('RH-', lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0')))))))),",
-				"          CodigoRuta = iif(upper(trim(CodigoRuta)) == 'R12-N' || upper(trim(CodigoRuta)) == 'R12-S', upper(trim(CodigoRuta)), concat('R-', lpad(replace(replace(replace(upper(trim(CodigoRuta)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))),",
+				"bronce derive(RutaHistoricaId = iif(     isNull(RutaHistoricaId) || trim(RutaHistoricaId) == '',     toString(null()),     iif(         regexMatch(upper(trim(RutaHistoricaId)), '^RH-'),         upper(trim(RutaHistoricaId)),         iif(             upper(trim(RutaHistoricaId)) == 'R12-N',             'RH-12-N',             iif(                 upper(trim(RutaHistoricaId)) == 'R12-S',                 'RH-12-S',                 iif(                     lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '07',                     'RH-07-OLD',                     iif(                         lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0') == '12',                         'RH-12-OLD',                         concat('RH-', lpad(replace(replace(replace(upper(trim(RutaHistoricaId)), 'RUTA ', ''), 'R-', ''), ' ', ''), 2, '0'))                     )                 )             )         )     ) ),",
+				"          CodigoRuta = iif(     upper(trim(CodigoRuta)) == 'R12-N' || upper(trim(CodigoRuta)) == 'R12-S',     upper(trim(CodigoRuta)),     concat(         'R-',         lpad(             replace(replace(replace(upper(trim(CodigoRuta)), 'RUTA ', ''), 'R-', ''), ' ', ''),             2,             '0'         )     ) ),",
 				"          NombreRuta = trim(NombreRuta),",
 				"          Origen = trim(Origen),",
 				"          Destino = trim(Destino),",
-				"          VigenciaDesde = iif(isNull(VigenciaDesde) || trim(VigenciaDesde) == '', toDate(null()), iif(regexMatch(trim(VigenciaDesde), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaDesde), '(\\\\d+)', 1))), iif(instr(trim(VigenciaDesde), '/') > 0, toDate(left(trim(VigenciaDesde), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaDesde), 10), 'yyyy-MM-dd')))),",
-				"          VigenciaHasta = iif(isNull(VigenciaHasta) || trim(VigenciaHasta) == '', toDate(null()), iif(regexMatch(trim(VigenciaHasta), '^\\\\d{5}(\\\\.\\\\d+)?$'), addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaHasta), '(\\\\d+)', 1))), iif(instr(trim(VigenciaHasta), '/') > 0, toDate(left(trim(VigenciaHasta), 10), 'dd/MM/yyyy'), toDate(left(trim(VigenciaHasta), 10), 'yyyy-MM-dd')))),",
-				"          Estado = upper(trim(Estado))) ~> limpiar",
-				"limpiar filter(not(isNull(RutaHistoricaId)) && regexMatch(RutaHistoricaId, '^RH-') && CodigoRuta != '' && NombreRuta != '' && not(isNull(VigenciaDesde)) && not(isNull(VigenciaHasta)) && Estado != '') ~> validos",
-				"validos aggregate(groupBy(RutaHistoricaId),",
-				"          CodigoRuta = first(CodigoRuta),",
-				"          NombreRuta = first(NombreRuta),",
-				"          Origen = first(Origen),",
-				"          Destino = first(Destino),",
-				"          VigenciaDesde = first(VigenciaDesde),",
-				"          VigenciaHasta = first(VigenciaHasta),",
-				"          Estado = first(Estado)) ~> deduplicar",
-				"deduplicar sink(allowSchemaDrift: true,",
+				"          Estado = upper(trim(Estado)),",
+				"          VigenciaDesde = iif(     isNull(VigenciaDesde) || trim(VigenciaDesde) == '',     toDate(null()),     iif(         regexMatch(trim(VigenciaDesde), '^\\\\d{5}(\\\\.\\\\d+)?$'),         addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaDesde), '(\\\\d+)', 1))),         iif(             instr(trim(VigenciaDesde), '/') > 0,             toDate(left(trim(VigenciaDesde), 10), 'dd/MM/yyyy'),             toDate(left(trim(VigenciaDesde), 10), 'yyyy-MM-dd')         )     ) ),",
+				"          VigenciaHasta = iif(     isNull(VigenciaHasta) || trim(VigenciaHasta) == '',     toDate(null()),     iif(         regexMatch(trim(VigenciaHasta), '^\\\\d{5}(\\\\.\\\\d+)?$'),         addDays(toDate('1899-12-30'), toInteger(regexExtract(trim(VigenciaHasta), '(\\\\d+)', 1))),         iif(             instr(trim(VigenciaHasta), '/') > 0,             toDate(left(trim(VigenciaHasta), 10), 'dd/MM/yyyy'),             toDate(left(trim(VigenciaHasta), 10), 'yyyy-MM-dd')         )     ) )) ~> limpiar",
+				"limpiar filter(!isNull(RutaHistoricaId)",
+				"&& regexMatch(RutaHistoricaId, '^RH-')",
+				"&& CodigoRuta != ''",
+				"&& NombreRuta != ''",
+				"&& !isNull(VigenciaDesde)",
+				"&& !isNull(VigenciaHasta)",
+				"&& Estado != '') ~> filtrar",
+				"filtrar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          RutaHistoricaId as string,",
@@ -89,14 +84,14 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          RutaHistoricaId = string,",
-				"          CodigoRuta = string,",
-				"          NombreRuta = string,",
-				"          Origen = string,",
-				"          Destino = string,",
-				"          VigenciaDesde = date,",
-				"          VigenciaHasta = date,",
-				"          Estado = string",
+				"          RutaHistoricaId,",
+				"          CodigoRuta,",
+				"          NombreRuta,",
+				"          Origen,",
+				"          Destino,",
+				"          VigenciaDesde,",
+				"          VigenciaHasta,",
+				"          Estado",
 				"     )) ~> sink1"
 			]
 		}
