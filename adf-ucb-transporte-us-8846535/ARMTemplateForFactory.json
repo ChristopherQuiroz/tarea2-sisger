@@ -641,43 +641,6 @@
 							},
 							"traceLevel": "Fine"
 						}
-					},
-					{
-						"name": "SL_07_IncidenteRuta",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "SL_06_DemandaParadas",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "df_silver_incidente_ruta",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"bronce": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
 					}
 				],
 				"policy": {
@@ -695,8 +658,7 @@
 				"[concat(variables('factoryId'), '/dataflows/df_silver_vehiculos')]",
 				"[concat(variables('factoryId'), '/dataflows/df_silver_incidentes')]",
 				"[concat(variables('factoryId'), '/dataflows/df_silver_viajes')]",
-				"[concat(variables('factoryId'), '/dataflows/df_silver_demanda_paradas')]",
-				"[concat(variables('factoryId'), '/dataflows/df_silver_incidente_ruta')]"
+				"[concat(variables('factoryId'), '/dataflows/df_silver_demanda_paradas')]"
 			]
 		},
 		{
@@ -5216,9 +5178,9 @@
 						"          RutaHistoricaId),",
 						"     EsPrincipal = first(EsPrincipal)) ~> deduplicar",
 						"deduplicar select(mapColumn(",
-						"          OutIncidenteId = IncidenteId,",
-						"          OutRutaHistoricaId = RutaHistoricaId,",
-						"          OutEsPrincipal = EsPrincipal",
+						"          IncidenteId,",
+						"          RutaHistoricaId,",
+						"          EsPrincipal",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
@@ -5238,9 +5200,9 @@
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          IncidenteId = OutIncidenteId,",
-						"          RutaHistoricaId = OutRutaHistoricaId,",
-						"          EsPrincipal = OutEsPrincipal",
+						"          IncidenteId,",
+						"          RutaHistoricaId,",
+						"          EsPrincipal",
 						"     )) ~> sink1"
 					]
 				}
