@@ -39,6 +39,9 @@
 				},
 				{
 					"name": "deduplicar"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -96,7 +99,14 @@
 				"validos aggregate(groupBy(IncidenteId,",
 				"          RutaHistoricaId),",
 				"     EsPrincipal = first(EsPrincipal)) ~> deduplicar",
-				"deduplicar sink(allowSchemaDrift: true,",
+				"deduplicar select(mapColumn(",
+				"          OutIncidenteId = IncidenteId,",
+				"          OutRutaHistoricaId = RutaHistoricaId,",
+				"          OutEsPrincipal = EsPrincipal",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          IncidenteId as string,",
@@ -112,9 +122,9 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          IncidenteId,",
-				"          RutaHistoricaId,",
-				"          EsPrincipal",
+				"          IncidenteId = OutIncidenteId,",
+				"          RutaHistoricaId = OutRutaHistoricaId,",
+				"          EsPrincipal = OutEsPrincipal",
 				"     )) ~> sink1"
 			]
 		}
