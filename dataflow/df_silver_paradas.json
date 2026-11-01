@@ -30,6 +30,9 @@
 				},
 				{
 					"name": "filtrar"
+				},
+				{
+					"name": "deduplicar"
 				}
 			],
 			"scriptLines": [
@@ -66,7 +69,16 @@
 				"&& !isNull(VigenciaDesde)",
 				"&& !isNull(VigenciaHasta)",
 				"&& Estado != '') ~> filtrar",
-				"filtrar sink(allowSchemaDrift: true,",
+				"filtrar aggregate(groupBy(ParadaHistoricaId),",
+				"     CodigoPublicado = first(CodigoPublicado),",
+				"          NombreParada = first(NombreParada),",
+				"          Zona = first(Zona),",
+				"          Latitud = first(Latitud),",
+				"          Longitud = first(Longitud),",
+				"          VigenciaDesde = first(VigenciaDesde),",
+				"          VigenciaHasta = first(VigenciaHasta),",
+				"          Estado = first(Estado)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ParadaHistoricaId as string,",
