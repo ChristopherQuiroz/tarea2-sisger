@@ -30,6 +30,9 @@
 				},
 				{
 					"name": "filtrar"
+				},
+				{
+					"name": "deduplicar"
 				}
 			],
 			"scriptLines": [
@@ -63,7 +66,15 @@
 				"&& !isNull(VigenciaDesde)",
 				"&& !isNull(VigenciaHasta)",
 				"&& Estado != '') ~> filtrar",
-				"filtrar sink(allowSchemaDrift: true,",
+				"filtrar aggregate(groupBy(RutaHistoricaId),",
+				"     CodigoRuta = first(CodigoRuta),",
+				"          NombreRuta = first(NombreRuta),",
+				"          Origen = first(Origen),",
+				"          Destino = first(Destino),",
+				"          VigenciaDesde = first(VigenciaDesde),",
+				"          VigenciaHasta = first(VigenciaHasta),",
+				"          Estado = first(Estado)) ~> deduplicar",
+				"deduplicar sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          RutaHistoricaId as string,",
