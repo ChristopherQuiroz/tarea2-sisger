@@ -100,14 +100,14 @@
 				"          RutaHistoricaId),",
 				"     EsPrincipal = first(EsPrincipal)) ~> deduplicar",
 				"deduplicar select(mapColumn(",
-				"          OutIncidenteId = IncidenteId,",
-				"          OutRutaHistoricaId = RutaHistoricaId,",
-				"          OutEsPrincipal = EsPrincipal",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
+				"select1 sink(allowSchemaDrift: false,",
+				"     validateSchema: true,",
 				"     input(",
 				"          IncidenteId as string,",
 				"          RutaHistoricaId as string,",
@@ -120,12 +120,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          IncidenteId = OutIncidenteId,",
-				"          RutaHistoricaId = OutRutaHistoricaId,",
-				"          EsPrincipal = OutEsPrincipal",
-				"     )) ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
