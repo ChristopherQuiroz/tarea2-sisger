@@ -106,8 +106,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sink(allowSchemaDrift: false,",
-				"     validateSchema: true,",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
 				"     input(",
 				"          IncidenteId as string,",
 				"          RutaHistoricaId as string,",
@@ -120,7 +120,12 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          IncidenteId,",
+				"          RutaHistoricaId,",
+				"          EsPrincipal",
+				"     )) ~> sink1"
 			]
 		}
 	}
