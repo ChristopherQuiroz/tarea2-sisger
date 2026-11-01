@@ -2056,6 +2056,12 @@
 						},
 						{
 							"name": "validos"
+						},
+						{
+							"name": "deduplicar"
+						},
+						{
+							"name": "select1"
 						}
 					],
 					"scriptLines": [
@@ -2110,7 +2116,17 @@
 						"limpiar filter(regexMatch(IncidenteId, '^IN-\\\\d{4}-\\\\d{4}$')",
 						"&& !isNull(RutaHistoricaId)",
 						"&& regexMatch(RutaHistoricaId, '^RH-')) ~> validos",
-						"validos sink(allowSchemaDrift: true,",
+						"validos aggregate(groupBy(IncidenteId,",
+						"          RutaHistoricaId),",
+						"     EsPrincipal = first(EsPrincipal)) ~> deduplicar",
+						"deduplicar select(mapColumn(",
+						"          OutIncidenteId = IncidenteId,",
+						"          OutRutaHistoricaId = RutaHistoricaId,",
+						"          OutEsPrincipal = EsPrincipal",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          IncidenteId as string,",
@@ -2126,9 +2142,9 @@
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          IncidenteId,",
-						"          RutaHistoricaId,",
-						"          EsPrincipal",
+						"          IncidenteId = OutIncidenteId,",
+						"          RutaHistoricaId = OutRutaHistoricaId,",
+						"          EsPrincipal = OutEsPrincipal",
 						"     )) ~> sink1"
 					]
 				}
@@ -2172,6 +2188,9 @@
 						},
 						{
 							"name": "filtrar"
+						},
+						{
+							"name": "deduplicar"
 						}
 					],
 					"scriptLines": [
@@ -2211,7 +2230,15 @@
 						"&& !isNull(FechaHoraFin)",
 						"&& !isNull(FechaHoraRegistro)",
 						"&& Descripcion != '') ~> filtrar",
-						"filtrar sink(allowSchemaDrift: true,",
+						"filtrar aggregate(groupBy(IncidenteId),",
+						"     TipoIncidente = first(TipoIncidente),",
+						"          Severidad = first(Severidad),",
+						"          FechaHoraInicio = first(FechaHoraInicio),",
+						"          FechaHoraFin = first(FechaHoraFin),",
+						"          FechaHoraRegistro = first(FechaHoraRegistro),",
+						"          VehiculoId = first(VehiculoId),",
+						"          Descripcion = first(Descripcion)) ~> deduplicar",
+						"deduplicar sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          IncidenteId as string,",
@@ -2280,6 +2307,9 @@
 						},
 						{
 							"name": "filtrar"
+						},
+						{
+							"name": "deduplicar"
 						}
 					],
 					"scriptLines": [
@@ -2316,7 +2346,16 @@
 						"&& !isNull(VigenciaDesde)",
 						"&& !isNull(VigenciaHasta)",
 						"&& Estado != '') ~> filtrar",
-						"filtrar sink(allowSchemaDrift: true,",
+						"filtrar aggregate(groupBy(ParadaHistoricaId),",
+						"     CodigoPublicado = first(CodigoPublicado),",
+						"          NombreParada = first(NombreParada),",
+						"          Zona = first(Zona),",
+						"          Latitud = first(Latitud),",
+						"          Longitud = first(Longitud),",
+						"          VigenciaDesde = first(VigenciaDesde),",
+						"          VigenciaHasta = first(VigenciaHasta),",
+						"          Estado = first(Estado)) ~> deduplicar",
+						"deduplicar sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          ParadaHistoricaId as string,",
@@ -2389,6 +2428,9 @@
 						},
 						{
 							"name": "filtrar"
+						},
+						{
+							"name": "deduplicar"
 						}
 					],
 					"scriptLines": [
@@ -2422,7 +2464,15 @@
 						"&& !isNull(VigenciaDesde)",
 						"&& !isNull(VigenciaHasta)",
 						"&& Estado != '') ~> filtrar",
-						"filtrar sink(allowSchemaDrift: true,",
+						"filtrar aggregate(groupBy(RutaHistoricaId),",
+						"     CodigoRuta = first(CodigoRuta),",
+						"          NombreRuta = first(NombreRuta),",
+						"          Origen = first(Origen),",
+						"          Destino = first(Destino),",
+						"          VigenciaDesde = first(VigenciaDesde),",
+						"          VigenciaHasta = first(VigenciaHasta),",
+						"          Estado = first(Estado)) ~> deduplicar",
+						"deduplicar sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          RutaHistoricaId as string,",
@@ -2493,6 +2543,9 @@
 						},
 						{
 							"name": "validos"
+						},
+						{
+							"name": "deduplicar"
 						}
 					],
 					"scriptLines": [
@@ -2525,7 +2578,14 @@
 						"&& !isNull(VigenciaDesde)",
 						"&& !isNull(VigenciaHasta)",
 						"&& Estado != '') ~> validos",
-						"validos sink(allowSchemaDrift: true,",
+						"validos aggregate(groupBy(VehiculoId),",
+						"     Placa = first(Placa),",
+						"          TipoVehiculo = first(TipoVehiculo),",
+						"          CapacidadEfectiva = first(CapacidadEfectiva),",
+						"          VigenciaDesde = first(VigenciaDesde),",
+						"          VigenciaHasta = first(VigenciaHasta),",
+						"          Estado = first(Estado)) ~> deduplicar",
+						"deduplicar sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          VehiculoId as string,",
